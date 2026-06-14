@@ -10,69 +10,79 @@ export function computeLayout(
   height: number,
 ): Map<string, Position> {
   const positions = new Map<string, Position>()
-
-  // Deterministic seed: place nodes in a circle
   const count = nodes.length
+  if (count === 0) return positions
+
+  const cx = width / 2
+  const cy = height / 2
+  // Seed nodes on a circle sized to fill ~70% of the smaller dimension
+  const initR = Math.min(width, height) * 0.35
   for (let i = 0; i < count; i++) {
     const angle = (2 * Math.PI * i) / count
     positions.set(nodes[i].id, {
-      x: width / 2 + (width / 3) * Math.cos(angle),
-      y: height / 2 + (height / 3) * Math.sin(angle),
+      x: cx + initR * Math.cos(angle),
+      y: cy + initR * Math.sin(angle),
     })
   }
 
-  const REST = 180   // spring rest length
-  const KR = 12000   // repulsion constant
-  const KS = 0.04    // spring stiffness
-  const DAMP = 0.75  // velocity damping
+  const REST = 240      // ideal edge length between connected nodes
+  const KR = 80000      // repulsion strength
+  const KS = 0.015      // spring stiffness (weaker = more spread)
+  const ITERS = 600     // more iterations for convergence
+  const PAD = 110       // keep nodes away from edges
 
   const ids = nodes.map((n) => n.id)
 
-  for (let iter = 0; iter < 200; iter++) {
-    const forces = new Map<string, Position>()
-    for (const id of ids) forces.set(id, { x: 0, y: 0 })
+  for (let iter = 0; iter < ITERS; iter++) {
+    // Cooling: max displacement shrinks from 60→4 as simulation settles
+    const temp = 1 - iter / ITERS
+    const maxStep = 4 + 56 * temp
 
-    // Repulsion: every pair
-    for (let i = 0; i < ids.length; i++) {
-      for (let j = i + 1; j < ids.length; j++) {
-        const a = positions.get(ids[i])!
+    const fx = new Float64Array(count)
+    const fy = new Float64Array(count)
+
+    // Repulsion between every pair
+    for (let i = 0; i < count; i++) {
+      const a = positions.get(ids[i])!
+      for (let j = i + 1; j < count; j++) {
         const b = positions.get(ids[j])!
-        const dx = b.x - a.x
-        const dy = b.y - a.y
-        const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1)
-        const f = KR / (dist * dist)
-        const fx = (dx / dist) * f
-        const fy = (dy / dist) * f
-        const fa = forces.get(ids[i])!
-        const fb = forces.get(ids[j])!
-        fa.x -= fx; fa.y -= fy
-        fb.x += fx; fb.y += fy
+        let dx = b.x - a.x
+        let dy = b.y - a.y
+        if (dx === 0 && dy === 0) { dx = 0.1; dy = 0.1 }
+        const distSq = Math.max(dx * dx + dy * dy, 1)
+        const dist = Math.sqrt(distSq)
+        const f = KR / distSq
+        const ffx = (dx / dist) * f
+        const ffy = (dy / dist) * f
+        fx[i] -= ffx; fy[i] -= ffy
+        fx[j] += ffx; fy[j] += ffy
       }
     }
 
-    // Attraction: spring along edges
+    // Spring attraction along edges
     for (const { source, target } of edges) {
-      const a = positions.get(source)
-      const b = positions.get(target)
-      if (!a || !b) continue
+      const si = ids.indexOf(source)
+      const ti = ids.indexOf(target)
+      if (si < 0 || ti < 0) continue
+      const a = positions.get(source)!
+      const b = positions.get(target)!
       const dx = b.x - a.x
       const dy = b.y - a.y
       const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1)
       const f = (dist - REST) * KS
-      const fx = (dx / dist) * f
-      const fy = (dy / dist) * f
-      const fa = forces.get(source)!
-      const fb = forces.get(target)!
-      fa.x += fx; fa.y += fy
-      fb.x -= fx; fb.y -= fy
+      const ffx = (dx / dist) * f
+      const ffy = (dy / dist) * f
+      fx[si] += ffx; fy[si] += ffy
+      fx[ti] -= ffx; fy[ti] -= ffy
     }
 
-    // Apply forces with clamping to viewport
-    for (const id of ids) {
-      const pos = positions.get(id)!
-      const f = forces.get(id)!
-      pos.x = Math.max(80, Math.min(width - 80, pos.x + f.x * DAMP))
-      pos.y = Math.max(80, Math.min(height - 80, pos.y + f.y * DAMP))
+    // Apply with per-node step clamping
+    for (let i = 0; i < count; i++) {
+      const pos = positions.get(ids[i])!
+      const mag = Math.sqrt(fx[i] * fx[i] + fy[i] * fy[i])
+      const scale = mag > maxStep ? maxStep / mag : 1
+      pos.x = Math.max(PAD, Math.min(width - PAD, pos.x + fx[i] * scale))
+      pos.y = Math.max(PAD, Math.min(height - PAD, pos.y + fy[i] * scale))
     }
   }
 
