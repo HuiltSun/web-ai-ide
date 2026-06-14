@@ -1,0 +1,117 @@
+<h2>三个创新 IDE 模式方向</h2>
+<p class="subtitle">基于「全沉浸 · AI主导 · 代码理解」的设计方向，选择最吸引你的一个（或多个）</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="galaxy" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1117;padding:16px;font-family:monospace;min-height:160px;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <svg width="260" height="150" viewBox="0 0 260 150">
+          <!-- Central hub -->
+          <circle cx="130" cy="75" r="18" fill="#58a6ff" opacity="0.9"/>
+          <text x="130" y="79" text-anchor="middle" fill="white" font-size="8" font-family="monospace">App Core</text>
+          <!-- Orbiting modules -->
+          <circle cx="55" cy="35" r="12" fill="#3fb950" opacity="0.8"/>
+          <text x="55" y="39" text-anchor="middle" fill="white" font-size="7">Auth</text>
+          <line x1="67" y1="43" x2="113" y2="63" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+
+          <circle cx="210" cy="40" r="14" fill="#d29922" opacity="0.8"/>
+          <text x="210" y="44" text-anchor="middle" fill="white" font-size="7">Agent</text>
+          <line x1="196" y1="50" x2="148" y2="63" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+
+          <circle cx="60" cy="120" r="10" fill="#bc8cff" opacity="0.8"/>
+          <text x="60" y="124" text-anchor="middle" fill="white" font-size="6">Storage</text>
+          <line x1="70" y1="112" x2="113" y2="87" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+
+          <circle cx="200" cy="118" r="11" fill="#f78166" opacity="0.8"/>
+          <text x="200" y="122" text-anchor="middle" fill="white" font-size="6">HTTP</text>
+          <line x1="189" y1="110" x2="147" y2="87" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+
+          <circle cx="130" cy="135" r="9" fill="#79c0ff" opacity="0.7"/>
+          <text x="130" y="139" text-anchor="middle" fill="white" font-size="6">UI</text>
+          <line x1="130" y1="126" x2="130" y2="93" stroke="#58a6ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+
+          <!-- AI bubble -->
+          <rect x="140" y="55" width="72" height="22" rx="11" fill="#21262d" stroke="#58a6ff" stroke-width="1"/>
+          <text x="176" y="70" text-anchor="middle" fill="#58a6ff" font-size="8">🤖 点击 Agent 了解它</text>
+        </svg>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · 代码星图（Code Galaxy）</h3>
+      <p>代码库变成可探索的<strong>交互式星图</strong>。每个模块是一颗星球，依赖关系是引力线。用户点击星球进入，AI 化身"星际向导"，主动讲解这个模块的职责、历史、与其他模块的关系。<br><br>
+      <strong>关键创新：</strong>空间导航取代文件树、AI 主动出"探索任务"、理解度可视化为"已探索区域"</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="theater" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1117;padding:12px;min-height:160px;display:flex;gap:8px;">
+      <!-- Left: annotated code -->
+      <div style="flex:1;background:#161b22;border-radius:6px;padding:10px;font-family:monospace;font-size:10px;color:#8b949e;position:relative;">
+        <div style="color:#79c0ff;">function</div>
+        <div style="color:#d2a8ff;padding-left:8px;">runAgent<span style="color:#f0f6fc;">(input) &#123;</span></div>
+        <div style="padding-left:16px;color:#3fb950;">// validate</div>
+        <div style="padding-left:16px;color:#f0f6fc;background:#1f2937;border-left:2px solid #f78166;padding-right:4px;">const res = await llm.call()</div>
+        <div style="padding-left:16px;color:#8b949e;">return res</div>
+        <div style="color:#f0f6fc;">&#125;</div>
+        <!-- Callout bubble -->
+        <div style="position:absolute;top:58px;right:-4px;background:#1c2128;border:1px solid #d29922;border-radius:6px;padding:5px 8px;font-size:9px;color:#d29922;max-width:90px;">
+          🤖 这行会做什么？
+        </div>
+      </div>
+      <!-- Right: dialogue -->
+      <div style="flex:1;background:#161b22;border-radius:6px;padding:10px;font-size:10px;display:flex;flex-direction:column;gap:6px;">
+        <div style="background:#21262d;border-radius:6px;padding:6px;color:#8b949e;font-size:9px;">🤖 在运行 LLM 之前，你觉得这里应该先做什么检查？</div>
+        <div style="background:#0d419d;border-radius:6px;padding:6px;color:#cdd9e5;font-size:9px;align-self:flex-end;">输入校验？Token 限制？</div>
+        <div style="background:#21262d;border-radius:6px;padding:6px;color:#3fb950;font-size:9px;">🤖 ✓ 完全正确！你已经理解了 86%</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · 苏格拉底剧场（Socratic Theater）</h3>
+      <p>代码不再是静态文件，而是一场<strong>AI 主持的研讨课</strong>。AI 在代码上浮现问题气泡、出预测题、等你回答再揭晓真相。用户永远不"读"代码，只"对话"代码。<br><br>
+      <strong>关键创新：</strong>AI 设计个人化课程路径、理解度量化追踪、"预测-验证"学习循环、代码标注层与对话并行</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="timemachine" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1117;padding:12px;min-height:160px;">
+      <!-- Timeline scrubber -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:#8b949e;font-family:monospace;white-space:nowrap;">t = 0ms</div>
+          <div style="flex:1;height:4px;background:#21262d;border-radius:2px;position:relative;">
+            <div style="width:45%;height:100%;background:linear-gradient(90deg,#58a6ff,#bc8cff);border-radius:2px;"></div>
+            <div style="position:absolute;left:43%;top:-5px;width:14px;height:14px;background:#bc8cff;border-radius:50%;border:2px solid #0d1117;"></div>
+          </div>
+          <div style="font-size:10px;color:#8b949e;font-family:monospace;white-space:nowrap;">t = 340ms</div>
+        </div>
+        <!-- State at current time -->
+        <div style="background:#161b22;border-radius:6px;padding:10px;display:flex;gap:8px;">
+          <div style="flex:1;font-family:monospace;font-size:9px;">
+            <div style="color:#8b949e;">// 当前状态</div>
+            <div style="color:#79c0ff;">user<span style="color:#8b949e;">:</span> <span style="color:#a5d6ff;">"写一个排序"</span></div>
+            <div style="color:#79c0ff;">tokens<span style="color:#8b949e;">:</span> <span style="color:#3fb950;">1,247</span></div>
+            <div style="color:#79c0ff;">tool_calls<span style="color:#8b949e;">:</span> <span style="color:#d29922;">["read_file"]</span></div>
+          </div>
+          <div style="flex:1;background:#1c2128;border:1px solid #bc8cff;border-radius:6px;padding:8px;font-size:9px;color:#bc8cff;">
+            🤖 AI 正在读取文件树<br>
+            <span style="color:#8b949e;">如果改成搜索文件，结果会不同。想试试吗？</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:center;">
+          <div style="background:#21262d;border-radius:4px;padding:4px 10px;font-size:9px;color:#58a6ff;cursor:pointer;">⏮ 回退</div>
+          <div style="background:#0d419d;border-radius:4px;padding:4px 10px;font-size:9px;color:white;cursor:pointer;">🌿 创建分支</div>
+          <div style="background:#21262d;border-radius:4px;padding:4px 10px;font-size:9px;color:#3fb950;cursor:pointer;">▶ 继续</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · AI 执行时光机（Execution Time Machine）</h3>
+      <p>AI 的推理过程变成可<strong>拖动、可回放、可分叉</strong>的时间线。用户可以暂停在任意时刻，问"为什么"，然后创建"如果当时不这样做会怎样"的平行分支。<br><br>
+      <strong>关键创新：</strong>AI 思维过程透明化、执行历史可视化时间线、"What-if" 平行宇宙分支、用户可在任意决策点介入</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px;">点击卡片选择（可多选），然后在终端告诉我你的想法</p>

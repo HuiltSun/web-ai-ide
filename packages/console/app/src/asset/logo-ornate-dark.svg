@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="234" height="42" viewBox="0 0 234 42" fill="none">
+  <!-- icon: stacked bars / AI layers -->
+  <rect x="0" y="6" width="18" height="4" rx="2" fill="#F1ECEC"/>
+  <rect x="3" y="14" width="24" height="4" rx="2" fill="#F1ECEC"/>
+  <rect x="0" y="22" width="18" height="4" rx="2" fill="#F1ECEC"/>
+  <rect x="3" y="30" width="24" height="4" rx="2" fill="#F1ECEC"/>
+  <!-- text: Web AI IDE -->
+  <text x="40" y="30" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="700" fill="#F1ECEC" letter-spacing="1">Web AI IDE</text>
+</svg>

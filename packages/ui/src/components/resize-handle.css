@@ -1,0 +1,145 @@
+[data-component="resize-handle"] {
+  position: absolute;
+  z-index: 10;
+
+  /* Bar line — dim by default, accent on hover */
+  &::after {
+    content: "";
+    position: absolute;
+    background-color: var(--border-base);
+    opacity: 0.22;
+    transition:
+      opacity 0.12s ease,
+      background-color 0.12s ease,
+      width 0.1s ease,
+      height 0.1s ease;
+    pointer-events: none;
+  }
+
+  /* Grip dots — visible grip indicator */
+  &::before {
+    content: "";
+    position: absolute;
+    color: var(--border-base);
+    opacity: 0.32;
+    transition:
+      opacity 0.12s ease,
+      color 0.12s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--border-selected) 6%, transparent);
+
+    &::after {
+      opacity: 1;
+      background-color: var(--border-selected);
+    }
+
+    &::before {
+      opacity: 1;
+      color: var(--border-selected);
+    }
+  }
+
+  &:active {
+    background: color-mix(in srgb, var(--border-selected) 10%, transparent);
+
+    &::after {
+      opacity: 1;
+      background-color: var(--border-selected);
+    }
+
+    &::before {
+      opacity: 1;
+      color: var(--border-selected);
+    }
+  }
+
+  &[data-direction="horizontal"] {
+    inset-block: 0;
+    inset-inline-end: 0;
+    width: 12px;
+    transform: translateX(50%);
+    cursor: col-resize;
+
+    &[data-edge="start"] {
+      inset-inline-start: 0;
+      inset-inline-end: auto;
+      transform: translateX(-50%);
+    }
+
+    /* 1px vertical bar */
+    &::after {
+      width: 1px;
+      inset-block: 0;
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+    }
+
+    &:hover::after {
+      width: 2px;
+    }
+
+    /* Vertical grip dots centered on bar */
+    &::before {
+      width: 3px;
+      height: 22px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-image: repeating-linear-gradient(
+        to bottom,
+        currentColor 0px,
+        currentColor 2.5px,
+        transparent 2.5px,
+        transparent 6px
+      );
+      border-radius: 1px;
+    }
+  }
+
+  &[data-direction="vertical"] {
+    inset-inline: 0;
+    inset-block-start: 0;
+    height: 12px;
+    transform: translateY(-50%);
+    cursor: row-resize;
+
+    &[data-edge="end"] {
+      inset-block-start: auto;
+      inset-block-end: 0;
+      transform: translateY(50%);
+    }
+
+    /* 1px horizontal bar */
+    &::after {
+      height: 1px;
+      inset-inline: 0;
+      inset-block-start: 50%;
+      transform: translateY(-50%);
+    }
+
+    &:hover::after {
+      height: 2px;
+    }
+
+    /* Horizontal grip dots centered on bar */
+    &::before {
+      height: 3px;
+      width: 22px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-image: repeating-linear-gradient(
+        to right,
+        currentColor 0px,
+        currentColor 2.5px,
+        transparent 2.5px,
+        transparent 6px
+      );
+      border-radius: 1px;
+    }
+  }
+}

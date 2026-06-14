@@ -1,0 +1,195 @@
+<h2>Code Neural Map — 完整界面设计</h2>
+<p class="subtitle">「神经星图」模式 · 完整 UI 布局原型</p>
+
+<div class="mockup" style="max-width:860px;margin:0 auto;">
+  <div class="mockup-header">Web AI IDE — Neural Map 模式（1280×800 视口）</div>
+  <div class="mockup-body" style="padding:0;background:#0d1117;overflow:hidden;border-radius:0 0 8px 8px;">
+
+    <!-- Top bar -->
+    <div style="background:#161b22;border-bottom:1px solid #21262d;padding:6px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="font-size:11px;color:#8b949e;font-family:monospace;">web-ai-ide</div>
+      <div style="font-size:10px;color:#8b949e;">›</div>
+      <div style="background:#0d419d;border-radius:4px;padding:3px 10px;font-size:10px;color:#58a6ff;font-family:monospace;font-weight:bold;">⬡ NEURAL MAP</div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+        <div style="font-size:10px;color:#3fb950;font-family:monospace;">● 已理解 12 / 38 节点</div>
+        <div style="background:#21262d;border-radius:12px;height:6px;width:80px;overflow:hidden;">
+          <div style="width:32%;height:100%;background:linear-gradient(90deg,#3fb950,#58a6ff);border-radius:12px;"></div>
+        </div>
+        <div style="width:1px;height:16px;background:#21262d;"></div>
+        <div style="font-size:10px;color:#8b949e;cursor:pointer;">✕ 退出模式</div>
+      </div>
+    </div>
+
+    <div style="display:flex;height:580px;">
+
+      <!-- Left: Neural Map Canvas -->
+      <div style="flex:1;position:relative;overflow:hidden;">
+        <svg width="100%" height="100%" viewBox="0 0 560 580" style="position:absolute;inset:0;">
+          <defs>
+            <filter id="glow3"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow4"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <radialGradient id="bgGrad" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stop-color="#0d1b2e" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#060d19" stop-opacity="1"/>
+            </radialGradient>
+          </defs>
+          <rect width="560" height="580" fill="url(#bgGrad)"/>
+
+          <!-- Background subtle grid -->
+          <line x1="0" y1="145" x2="560" y2="145" stroke="#1c2128" stroke-width="0.5"/>
+          <line x1="0" y1="290" x2="560" y2="290" stroke="#1c2128" stroke-width="0.5"/>
+          <line x1="0" y1="435" x2="560" y2="435" stroke="#1c2128" stroke-width="0.5"/>
+          <line x1="140" y1="0" x2="140" y2="580" stroke="#1c2128" stroke-width="0.5"/>
+          <line x1="280" y1="0" x2="280" y2="580" stroke="#1c2128" stroke-width="0.5"/>
+          <line x1="420" y1="0" x2="420" y2="580" stroke="#1c2128" stroke-width="0.5"/>
+
+          <!-- Organic curved connections -->
+          <path d="M280,290 Q200,180 120,130" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+          <path d="M280,290 Q330,170 420,120" fill="none" stroke="#3fb950" stroke-width="2.5" opacity="0.6"/>
+          <path d="M280,290 Q180,350 110,430" fill="none" stroke="#bc8cff" stroke-width="1.5" opacity="0.45"/>
+          <path d="M280,290 Q380,360 450,440" fill="none" stroke="#f78166" stroke-width="2" opacity="0.5"/>
+          <path d="M280,290 Q280,400 280,490" fill="none" stroke="#d29922" stroke-width="1.5" opacity="0.45"/>
+          <path d="M120,130 Q80,280 110,430" fill="none" stroke="#8b949e" stroke-width="1" opacity="0.25"/>
+          <path d="M420,120 Q480,280 450,440" fill="none" stroke="#8b949e" stroke-width="1" opacity="0.25"/>
+          <path d="M120,130 Q200,60 420,120" fill="none" stroke="#8b949e" stroke-width="0.8" opacity="0.2"/>
+
+          <!-- Flow particles on connections -->
+          <circle cx="200" cy="210" r="3.5" fill="#58a6ff" opacity="0.9"/>
+          <circle cx="355" cy="200" r="3" fill="#3fb950" opacity="0.8"/>
+          <circle cx="370" cy="360" r="3" fill="#f78166" opacity="0.7"/>
+
+          <!-- === NODES === -->
+
+          <!-- Core (selected/active) -->
+          <circle cx="280" cy="290" r="40" fill="none" stroke="#58a6ff" stroke-width="0.5" opacity="0.2"/>
+          <circle cx="280" cy="290" r="32" fill="none" stroke="#58a6ff" stroke-width="1" opacity="0.35"/>
+          <circle cx="280" cy="290" r="24" fill="#0d2040" stroke="#58a6ff" stroke-width="2.5" filter="url(#glow3)"/>
+          <text x="280" y="286" text-anchor="middle" fill="#79c0ff" font-size="9" font-family="monospace" font-weight="bold">agent</text>
+          <text x="280" y="298" text-anchor="middle" fill="#58a6ff" font-size="7" font-family="monospace">runtime</text>
+          <!-- Selected ring -->
+          <circle cx="280" cy="290" r="28" fill="none" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+
+          <!-- Auth node (understood ✓) -->
+          <circle cx="120" cy="130" r="22" fill="none" stroke="#3fb950" stroke-width="0.5" opacity="0.3"/>
+          <circle cx="120" cy="130" r="16" fill="#0a2618" stroke="#3fb950" stroke-width="2" filter="url(#glow4)"/>
+          <text x="120" y="127" text-anchor="middle" fill="#3fb950" font-size="8" font-family="monospace">auth</text>
+          <text x="120" y="138" text-anchor="middle" fill="#3fb950" font-size="16">✓</text>
+
+          <!-- Provider node (hot/active) -->
+          <circle cx="420" cy="120" r="24" fill="none" stroke="#d29922" stroke-width="0.5" opacity="0.35"/>
+          <circle cx="420" cy="120" r="18" fill="#2d1f04" stroke="#d29922" stroke-width="2.5" filter="url(#glow3)"/>
+          <text x="420" y="116" text-anchor="middle" fill="#d29922" font-size="8" font-family="monospace">providers</text>
+          <text x="420" y="128" text-anchor="middle" fill="#d29922" font-size="7" font-family="monospace">●●●</text>
+          <!-- Hot indicator -->
+          <circle cx="432" cy="106" r="5" fill="#d29922" opacity="0.9"/>
+          <text x="432" y="110" text-anchor="middle" fill="#0d1117" font-size="7" font-weight="bold">!</text>
+
+          <!-- Storage node -->
+          <circle cx="110" cy="430" r="18" fill="#1a0a2e" stroke="#bc8cff" stroke-width="2" filter="url(#glow4)"/>
+          <text x="110" y="427" text-anchor="middle" fill="#bc8cff" font-size="8" font-family="monospace">storage</text>
+          <text x="110" y="439" text-anchor="middle" fill="#bc8cff" font-size="7" font-family="monospace">SQLite</text>
+
+          <!-- HTTP node -->
+          <circle cx="450" cy="440" r="18" fill="#2d0f0f" stroke="#f78166" stroke-width="2" filter="url(#glow4)"/>
+          <text x="450" y="437" text-anchor="middle" fill="#f78166" font-size="8" font-family="monospace">http</text>
+          <text x="450" y="449" text-anchor="middle" fill="#f78166" font-size="7" font-family="monospace">Hono</text>
+
+          <!-- Config node -->
+          <circle cx="280" cy="490" r="15" fill="#1a1506" stroke="#d29922" stroke-width="1.5" filter="url(#glow4)" opacity="0.8"/>
+          <text x="280" y="487" text-anchor="middle" fill="#d29922" font-size="7" font-family="monospace">config</text>
+          <text x="280" y="498" text-anchor="middle" fill="#d29922" font-size="6" font-family="monospace">未探索</text>
+
+          <!-- AI Suggested path overlay -->
+          <path d="M280,262 Q350,190 402,138" fill="none" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+          <polygon points="402,132 408,142 398,140" fill="#58a6ff" opacity="0.8"/>
+          <rect x="302" y="185" width="80" height="20" rx="10" fill="#0d1117" stroke="#58a6ff" stroke-width="0.8"/>
+          <text x="342" y="198" text-anchor="middle" fill="#58a6ff" font-size="7.5">🤖 建议下一站</text>
+
+          <!-- Zoom hint -->
+          <rect x="8" y="546" width="90" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="53" y="561" text-anchor="middle" fill="#8b949e" font-size="8">⌨ 滚轮缩放  拖拽平移</text>
+
+        </svg>
+      </div>
+
+      <!-- Right: AI Guide Panel -->
+      <div style="width:220px;border-left:1px solid #21262d;display:flex;flex-direction:column;background:#0d1117;">
+
+        <!-- Node detail -->
+        <div style="padding:12px;border-bottom:1px solid #21262d;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#58a6ff;box-shadow:0 0 6px #58a6ff;"></div>
+            <div style="font-size:11px;color:#cdd9e5;font-family:monospace;font-weight:bold;">agent/runtime</div>
+          </div>
+          <div style="font-size:9px;color:#8b949e;line-height:1.5;margin-bottom:8px;">packages/opencode/src/agent/index.ts<br>3 个文件 · 847 行</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="background:#0d419d;border-radius:3px;padding:2px 6px;font-size:8px;color:#79c0ff;">核心</span>
+            <span style="background:#2d1d04;border-radius:3px;padding:2px 6px;font-size:8px;color:#d29922;">高活跃</span>
+            <span style="background:#21262d;border-radius:3px;padding:2px 6px;font-size:8px;color:#8b949e;">5 依赖</span>
+          </div>
+        </div>
+
+        <!-- AI conversation -->
+        <div style="flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden;">
+          <div style="font-size:9px;color:#8b949e;text-transform:uppercase;letter-spacing:0.5px;">🤖 AI 向导</div>
+
+          <div style="background:#161b22;border-radius:8px;padding:8px;font-size:10px;color:#cdd9e5;line-height:1.5;border-left:2px solid #58a6ff;">
+            这是整个系统的<strong style="color:#79c0ff;">大脑</strong>——Agent Runtime 负责协调所有 AI 对话的生命周期。
+          </div>
+
+          <div style="background:#161b22;border-radius:8px;padding:8px;font-size:10px;color:#cdd9e5;line-height:1.5;border-left:2px solid #d29922;">
+            🎯 <strong style="color:#d29922;">猜一猜</strong><br>
+            当用户发送一条消息，Agent 的第一步会做什么？
+          </div>
+
+          <!-- User answer area -->
+          <div style="display:flex;gap:4px;">
+            <div style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:6px 8px;font-size:9px;color:#8b949e;">验证输入... 解析命令...</div>
+            <div style="background:#0d419d;border-radius:6px;padding:6px 8px;font-size:9px;color:#58a6ff;cursor:pointer;">↵</div>
+          </div>
+
+          <div style="background:#0a2618;border-radius:8px;padding:8px;font-size:10px;color:#3fb950;line-height:1.5;">
+            ✓ 完全正确！它首先调用 <code style="background:#21262d;padding:1px 4px;border-radius:3px;font-size:9px;">providers.ts</code> 选择模型，这正是下一个节点的职责。
+          </div>
+        </div>
+
+        <!-- Bottom actions -->
+        <div style="padding:10px;border-top:1px solid #21262d;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:6px;">
+            <div style="flex:1;background:#21262d;border-radius:6px;padding:5px;text-align:center;font-size:9px;color:#8b949e;cursor:pointer;">📍 标记</div>
+            <div style="flex:1;background:#21262d;border-radius:6px;padding:5px;text-align:center;font-size:9px;color:#8b949e;cursor:pointer;">✓ 已懂</div>
+            <div style="flex:1;background:#0d419d;border-radius:6px;padding:5px;text-align:center;font-size:9px;color:#58a6ff;cursor:pointer;">→ 下一站</div>
+          </div>
+          <div style="background:#1c1f06;border-radius:6px;padding:6px;font-size:9px;color:#d29922;text-align:center;">
+            🎯 推荐探索：providers → config → http
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <h3>这个设计回答了几个关键问题</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+    <div style="background:#161b22;border-radius:8px;padding:12px;border-left:3px solid #58a6ff;">
+      <div class="label">输入侧打破</div>
+      <p style="font-size:13px;color:#cdd9e5;margin-top:6px;">不打字代码。用鼠标点击节点、拖拽探索、回答 AI 问题、标记笔记</p>
+    </div>
+    <div style="background:#161b22;border-radius:8px;padding:12px;border-left:3px solid #3fb950;">
+      <div class="label">输出侧打破</div>
+      <p style="font-size:13px;color:#cdd9e5;margin-top:6px;">不输出代码文字。神经图谱 + 活跃度脉冲 + AI 气泡 + 知识进度条</p>
+    </div>
+    <div style="background:#161b22;border-radius:8px;padding:12px;border-left:3px solid #d29922;">
+      <div class="label">节奏打破</div>
+      <p style="font-size:13px;color:#cdd9e5;margin-top:6px;">AI 主动发问、建议路径、标注热点节点，用户跟随引导而非自己提问</p>
+    </div>
+    <div style="background:#161b22;border-radius:8px;padding:12px;border-left:3px solid #bc8cff;">
+      <div class="label">技术可行性</div>
+      <p style="font-size:13px;color:#cdd9e5;margin-top:6px;">基于现有 LSP + AST 解析建图，SolidJS + SVG/Canvas 渲染，复用 AI SDK</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:16px;">这个设计方向感觉对吗？在终端告诉我你想调整什么，或者说「对，继续深化」</p>

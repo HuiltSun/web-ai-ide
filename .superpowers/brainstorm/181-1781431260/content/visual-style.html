@@ -1,0 +1,144 @@
+<h2>代码星图 · 视觉风格选择</h2>
+<p class="subtitle">同样是"代码可视化地图"，风格不同，体验完全不同。选一个最吸引你的方向</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="galaxy" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#060d19;padding:16px;min-height:170px;position:relative;overflow:hidden;">
+      <!-- Star field background -->
+      <div style="position:absolute;inset:0;">
+        <div style="position:absolute;width:2px;height:2px;background:white;border-radius:50%;top:15%;left:20%;opacity:0.4;"></div>
+        <div style="position:absolute;width:1px;height:1px;background:white;border-radius:50%;top:40%;left:10%;opacity:0.3;"></div>
+        <div style="position:absolute;width:2px;height:2px;background:white;border-radius:50%;top:70%;left:80%;opacity:0.4;"></div>
+        <div style="position:absolute;width:1px;height:1px;background:white;border-radius:50%;top:25%;left:85%;opacity:0.3;"></div>
+        <div style="position:absolute;width:2px;height:2px;background:white;border-radius:50%;top:80%;left:30%;opacity:0.3;"></div>
+        <div style="position:absolute;width:1px;height:1px;background:white;border-radius:50%;top:60%;left:55%;opacity:0.2;"></div>
+      </div>
+      <svg width="100%" height="150" viewBox="0 0 280 150" style="position:relative">
+        <!-- Glow connections -->
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <line x1="140" y1="75" x2="55" y2="30" stroke="#58a6ff" stroke-width="1" opacity="0.3"/>
+        <line x1="140" y1="75" x2="220" y2="35" stroke="#58a6ff" stroke-width="1" opacity="0.3"/>
+        <line x1="140" y1="75" x2="50" y2="120" stroke="#58a6ff" stroke-width="1" opacity="0.3"/>
+        <line x1="140" y1="75" x2="230" y2="120" stroke="#58a6ff" stroke-width="1" opacity="0.3"/>
+        <line x1="140" y1="75" x2="140" y2="138" stroke="#58a6ff" stroke-width="1" opacity="0.3"/>
+        <!-- Core planet -->
+        <circle cx="140" cy="75" r="20" fill="#0d419d" filter="url(#glow)" opacity="0.9"/>
+        <circle cx="140" cy="75" r="20" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0.8"/>
+        <text x="140" y="79" text-anchor="middle" fill="#cdd9e5" font-size="8" font-family="monospace">core</text>
+        <!-- Satellites -->
+        <circle cx="55" cy="30" r="13" fill="#0a3622" stroke="#3fb950" stroke-width="1.5" filter="url(#glow)"/>
+        <text x="55" y="34" text-anchor="middle" fill="#3fb950" font-size="7">auth</text>
+        <circle cx="220" cy="35" r="14" fill="#2d1d04" stroke="#d29922" stroke-width="1.5" filter="url(#glow)"/>
+        <text x="220" y="39" text-anchor="middle" fill="#d29922" font-size="7">agent</text>
+        <circle cx="50" cy="120" r="11" fill="#1a0a2e" stroke="#bc8cff" stroke-width="1.5" filter="url(#glow)"/>
+        <text x="50" y="124" text-anchor="middle" fill="#bc8cff" font-size="7">db</text>
+        <circle cx="230" cy="120" r="12" fill="#2d0f0f" stroke="#f78166" stroke-width="1.5" filter="url(#glow)"/>
+        <text x="230" y="124" text-anchor="middle" fill="#f78166" font-size="7">http</text>
+        <circle cx="140" cy="138" r="10" fill="#0d1b3a" stroke="#79c0ff" stroke-width="1.5" filter="url(#glow)"/>
+        <text x="140" y="142" text-anchor="middle" fill="#79c0ff" font-size="6">ui</text>
+        <!-- AI label -->
+        <rect x="150" y="55" width="80" height="18" rx="9" fill="#0d1117" stroke="#58a6ff" stroke-width="0.8" opacity="0.9"/>
+        <text x="190" y="67" text-anchor="middle" fill="#58a6ff" font-size="8">🤖 点击探索 agent →</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A · 深空星系</h3>
+      <p>暗色宇宙背景，每个模块是发光星球，依赖是光线连接。<strong>沉浸感最强</strong>，视觉冲击力大，像在探索一个未知星系。AI 是你的星际向导。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="citymap" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;min-height:170px;">
+      <svg width="100%" height="150" viewBox="0 0 280 150">
+        <!-- Grid streets -->
+        <line x1="0" y1="75" x2="280" y2="75" stroke="#2d2d4e" stroke-width="8"/>
+        <line x1="140" y1="0" x2="140" y2="150" stroke="#2d2d4e" stroke-width="8"/>
+        <line x1="0" y1="37" x2="280" y2="37" stroke="#1e1e3a" stroke-width="4"/>
+        <line x1="0" y1="112" x2="280" y2="112" stroke="#1e1e3a" stroke-width="4"/>
+        <line x1="70" y1="0" x2="70" y2="150" stroke="#1e1e3a" stroke-width="4"/>
+        <line x1="210" y1="0" x2="210" y2="150" stroke="#1e1e3a" stroke-width="4"/>
+        <!-- Districts (buildings) -->
+        <rect x="8" y="8" width="55" height="55" rx="3" fill="#0a3622" stroke="#3fb950" stroke-width="1.5"/>
+        <text x="35" y="32" text-anchor="middle" fill="#3fb950" font-size="9" font-weight="bold">Auth</text>
+        <text x="35" y="44" text-anchor="middle" fill="#3fb950" font-size="7">District</text>
+        <rect x="78" y="8" width="55" height="55" rx="3" fill="#2d1d04" stroke="#d29922" stroke-width="1.5"/>
+        <text x="105" y="32" text-anchor="middle" fill="#d29922" font-size="9" font-weight="bold">Agent</text>
+        <text x="105" y="44" text-anchor="middle" fill="#d29922" font-size="7">District</text>
+        <rect x="148" y="8" width="55" height="55" rx="3" fill="#0d2137" stroke="#58a6ff" stroke-width="2"/>
+        <text x="175" y="28" text-anchor="middle" fill="#58a6ff" font-size="9" font-weight="bold">Core</text>
+        <text x="175" y="40" text-anchor="middle" fill="#58a6ff" font-size="7">City Center</text>
+        <text x="175" y="52" text-anchor="middle" fill="#58a6ff" font-size="16">🏛</text>
+        <rect x="8" y="83" width="55" height="55" rx="3" fill="#1a0a2e" stroke="#bc8cff" stroke-width="1.5"/>
+        <text x="35" y="107" text-anchor="middle" fill="#bc8cff" font-size="9" font-weight="bold">DB</text>
+        <text x="35" y="119" text-anchor="middle" fill="#bc8cff" font-size="7">Warehouse</text>
+        <rect x="78" y="83" width="55" height="55" rx="3" fill="#2d0f0f" stroke="#f78166" stroke-width="1.5"/>
+        <text x="105" y="107" text-anchor="middle" fill="#f78166" font-size="9" font-weight="bold">HTTP</text>
+        <text x="105" y="119" text-anchor="middle" fill="#f78166" font-size="7">Gateway</text>
+        <rect x="148" y="83" width="110" height="55" rx="3" fill="#0d1b2e" stroke="#79c0ff" stroke-width="1.5"/>
+        <text x="203" y="107" text-anchor="middle" fill="#79c0ff" font-size="9" font-weight="bold">UI / Frontend</text>
+        <text x="203" y="119" text-anchor="middle" fill="#79c0ff" font-size="7">Commercial Zone</text>
+        <!-- Walking figure / cursor -->
+        <circle cx="140" cy="75" r="6" fill="#f0f6fc" opacity="0.9"/>
+        <text x="140" y="73" text-anchor="middle" font-size="10">👤</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B · 代码城市</h3>
+      <p>代码库是一座城市，模块是区域，你是在城市里行走的探索者。<strong>直觉感最强</strong>，类比城市规划，AI 是城市导游，带你穿越街道。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="neural" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1117;padding:16px;min-height:170px;">
+      <svg width="100%" height="150" viewBox="0 0 280 150">
+        <defs>
+          <filter id="glow2"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- Animated-looking connections (thick organic curves) -->
+        <path d="M140,75 Q90,20 55,30" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.6"/>
+        <path d="M140,75 Q180,20 220,35" fill="none" stroke="#3fb950" stroke-width="2.5" opacity="0.7"/>
+        <path d="M140,75 Q80,100 50,120" fill="none" stroke="#bc8cff" stroke-width="1.5" opacity="0.5"/>
+        <path d="M140,75 Q195,105 230,120" fill="none" stroke="#f78166" stroke-width="2" opacity="0.6"/>
+        <path d="M55,30 Q30,75 50,120" fill="none" stroke="#8b949e" stroke-width="1" opacity="0.3"/>
+        <path d="M220,35 Q250,75 230,120" fill="none" stroke="#8b949e" stroke-width="1" opacity="0.3"/>
+        <!-- Nodes with pulse rings -->
+        <circle cx="140" cy="75" r="28" fill="none" stroke="#58a6ff" stroke-width="0.5" opacity="0.3"/>
+        <circle cx="140" cy="75" r="20" fill="#0d1117" stroke="#58a6ff" stroke-width="2" filter="url(#glow2)"/>
+        <circle cx="140" cy="75" r="12" fill="#0d419d" opacity="0.8"/>
+        <text x="140" y="79" text-anchor="middle" fill="white" font-size="8">core</text>
+
+        <circle cx="55" cy="30" r="16" fill="none" stroke="#3fb950" stroke-width="0.5" opacity="0.3"/>
+        <circle cx="55" cy="30" r="12" fill="#0a3622" stroke="#3fb950" stroke-width="1.5" filter="url(#glow2)"/>
+        <text x="55" y="34" text-anchor="middle" fill="#3fb950" font-size="7">auth</text>
+
+        <circle cx="220" cy="35" r="18" fill="none" stroke="#d29922" stroke-width="0.5" opacity="0.3"/>
+        <circle cx="220" cy="35" r="13" fill="#2d1d04" stroke="#d29922" stroke-width="2" filter="url(#glow2)"/>
+        <text x="220" y="39" text-anchor="middle" fill="#d29922" font-size="7">agent</text>
+
+        <circle cx="50" cy="120" r="11" fill="#1a0a2e" stroke="#bc8cff" stroke-width="1.5" filter="url(#glow2)"/>
+        <text x="50" y="124" text-anchor="middle" fill="#bc8cff" font-size="7">db</text>
+
+        <circle cx="230" cy="120" r="12" fill="#2d0f0f" stroke="#f78166" stroke-width="1.5" filter="url(#glow2)"/>
+        <text x="230" y="124" text-anchor="middle" fill="#f78166" font-size="7">http</text>
+
+        <!-- Activity flow dots on paths -->
+        <circle cx="97" cy="52" r="3" fill="#58a6ff" opacity="0.8"/>
+        <circle cx="180" cy="55" r="3" fill="#3fb950" opacity="0.8"/>
+
+        <!-- Tooltip -->
+        <rect x="148" y="42" width="68" height="20" rx="10" fill="#161b22" stroke="#d29922" stroke-width="0.8"/>
+        <text x="182" y="55" text-anchor="middle" fill="#d29922" font-size="7.5">⚡ 高活跃节点</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C · 神经网络图</h3>
+      <p>有机曲线连接、呼吸感光晕、活跃度脉冲动画。<strong>最像"活的系统"</strong>，数据流动和调用关系都可视化为电流。AI 在图上标注活跃节点和瓶颈。</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">这只是视觉语言，不影响功能设计。点击选择，也可以在终端说"A+C"这样的组合</p>
