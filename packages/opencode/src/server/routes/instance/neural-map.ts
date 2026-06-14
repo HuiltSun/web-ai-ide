@@ -2,7 +2,6 @@ import { Hono } from "hono"
 import { zValidator } from "@hono/zod-validator"
 import { Effect } from "effect"
 import { z } from "zod"
-import { Instance } from "@/project/instance"
 import { Provider } from "@/provider/provider"
 import { Database } from "@/storage/db"
 import { NeuralMapProgressTable } from "@/neural-map/neural-map.sql"
@@ -24,10 +23,10 @@ const nodeSchema = z.object({
 
 export function NeuralMapRoutes() {
   return new Hono()
-    // GET /neural-map/graph?src=<relative-src-path>
+    // GET /neural-map/graph?directory=<project-root>&src=<relative-src-path>
     .get("/graph", async (c) => {
       const src = c.req.query("src") ?? "packages/opencode/src"
-      const dir = Instance.directory
+      const dir = c.req.query("directory") ?? process.cwd()
       const srcDir = path.join(dir, src)
       const graph = await buildGraph(srcDir, dir)
       return c.json(graph)

@@ -1,6 +1,7 @@
 import { createSignal, onMount, Show } from "solid-js"
-import { useNavigate } from "@solidjs/router"
+import { useNavigate, useParams } from "@solidjs/router"
 import { useServer } from "@/context/server"
+import { decode64 } from "@/utils/base64"
 import { createNeuralMapStore } from "./store"
 import { fetchGraph, fetchGuide, fetchProgress, markUnderstood, unmarkUnderstood } from "./api"
 import NeuralMapCanvas from "./Canvas"
@@ -13,16 +14,18 @@ const CANVAS_HEIGHT = 600
 export default function NeuralMapPage() {
   const server = useServer()
   const navigate = useNavigate()
+  const params = useParams()
   const store = createNeuralMapStore()
   const { state, loadGraph, selectNode, setGuideLoading, setGuideResponse, showFeedback, markUnderstood: markLocal, unmarkUnderstood: unmarkLocal, setLoading, setError } = store
 
   const serverUrl = () => server.current?.http.url ?? ""
+  const directory = () => decode64(params.dir)
 
   onMount(async () => {
     setLoading(true)
     try {
       const [graph, progress] = await Promise.all([
-        fetchGraph(serverUrl()),
+        fetchGraph(serverUrl(), directory()),
         fetchProgress(serverUrl(), SESSION_ID),
       ])
       loadGraph(graph, CANVAS_WIDTH, CANVAS_HEIGHT)

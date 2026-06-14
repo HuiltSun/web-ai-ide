@@ -16,8 +16,8 @@ async function apiFetch(serverUrl: string, path: string, init?: RequestInit) {
   return res.json()
 }
 
-export async function fetchGraph(serverUrl: string, src?: string): Promise<GraphData> {
-  const qs = src ? `?src=${encodeURIComponent(src)}` : ""
+export async function fetchGraph(serverUrl: string, directory?: string): Promise<GraphData> {
+  const qs = directory ? `?directory=${encodeURIComponent(directory)}` : ""
   return apiFetch(serverUrl, `/neural-map/graph${qs}`)
 }
 
