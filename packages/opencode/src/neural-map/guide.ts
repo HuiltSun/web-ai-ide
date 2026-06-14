@@ -56,7 +56,7 @@ export async function generateGuide(model: any, req: GuideRequest): Promise<Guid
     system: buildSystemPrompt(),
     prompt: buildUserPrompt(req),
     temperature: 0.3,
-    maxOutputTokens: 400,
+    maxTokens: 400,
   })
 
   try {
@@ -67,7 +67,8 @@ export async function generateGuide(model: any, req: GuideRequest): Promise<Guid
       feedback: parsed.feedback ?? "",
       nextNodeId: parsed.nextNodeId ?? null,
     }
-  } catch {
+  } catch (err) {
+    console.error("[guide] Failed to parse AI response as JSON:", err)
     return {
       intro: text.slice(0, 200),
       quiz: "你认为这个模块最重要的职责是什么？",
