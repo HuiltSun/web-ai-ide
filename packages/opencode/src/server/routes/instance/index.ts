@@ -5,6 +5,7 @@ import { Context, Effect } from "effect"
 import z from "zod"
 import { Format } from "@/format"
 import { TuiRoutes } from "./tui"
+import { NeuralMapRoutes } from "./neural-map"
 import { Instance } from "@/project/instance"
 import { Vcs } from "@/project/vcs"
 import { Agent } from "@/agent/agent"
@@ -168,6 +169,7 @@ export const InstanceRoutes = (upgrade: UpgradeWebSocket): Hono => {
     .route("/", EventRoutes())
     .route("/mcp", McpRoutes())
     .route("/tui", TuiRoutes())
+    .route("/neural-map", NeuralMapRoutes())
     .post(
       "/instance/dispose",
       describeRoute({
