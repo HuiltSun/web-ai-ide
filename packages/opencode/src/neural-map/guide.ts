@@ -56,7 +56,7 @@ export async function generateGuide(model: any, req: GuideRequest): Promise<Guid
     system: buildSystemPrompt(),
     prompt: buildUserPrompt(req),
     temperature: 0.3,
-    maxTokens: 400,
+    maxOutputTokens: 400,
   })
 
   try {
