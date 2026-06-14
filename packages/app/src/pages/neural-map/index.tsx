@@ -84,7 +84,7 @@ export default function NeuralMapPage() {
   const pct = () => total() > 0 ? Math.round((understood() / total()) * 100) : 0
 
   return (
-    <div style={{ display: "flex", "flex-direction": "column", height: "100vh", background: "#0d1117", color: "#cdd9e5" }}>
+    <div style={{ position: "fixed", inset: "0", "z-index": "9999", display: "flex", "flex-direction": "column", background: "#0d1117", color: "#cdd9e5" }}>
       {/* Top bar */}
       <div style={{ background: "#161b22", "border-bottom": "1px solid #21262d", padding: "6px 16px", display: "flex", "align-items": "center", gap: "12px", "flex-shrink": 0 }}>
         <div style={{ "font-size": "11px", color: "#8b949e", "font-family": "monospace" }}>web-ai-ide</div>
