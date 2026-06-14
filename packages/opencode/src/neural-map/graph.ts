@@ -3,16 +3,14 @@ import { Glob } from "bun"
 import { $ } from "bun"
 import type { GraphData, GraphNode, GraphEdge } from "./types"
 
-const IMPORT_RE = /^(?:import|export)[^;'"]*from\s+['"]([^'"]+)['"]/gm
-const REQUIRE_RE = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/gm
-
 function extractRelativeImports(content: string, filePath: string, srcDir: string): string[] {
   const results: string[] = []
-
-  for (const re of [IMPORT_RE, REQUIRE_RE]) {
-    re.lastIndex = 0
-    let m: RegExpExecArray | null
-    while ((m = re.exec(content)) !== null) {
+  const patterns = [
+    /(?:import|export)[^;'"]*from\s+['"]([^'"]+)['"]/gm,
+    /require\s*\(\s*['"]([^'"]+)['"]\s*\)/gm,
+  ]
+  for (const re of patterns) {
+    for (const m of content.matchAll(re)) {
       const spec = m[1]
       if (!spec.startsWith(".")) continue
       const abs = path.resolve(path.dirname(filePath), spec)
