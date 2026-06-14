@@ -21,10 +21,10 @@ export function computeLayout(
     })
   }
 
-  const REST = 100   // spring rest length
-  const KR = 8000    // repulsion constant
-  const KS = 0.05    // spring stiffness
-  const DAMP = 0.8   // velocity damping
+  const REST = 180   // spring rest length
+  const KR = 12000   // repulsion constant
+  const KS = 0.04    // spring stiffness
+  const DAMP = 0.75  // velocity damping
 
   const ids = nodes.map((n) => n.id)
 
@@ -71,8 +71,8 @@ export function computeLayout(
     for (const id of ids) {
       const pos = positions.get(id)!
       const f = forces.get(id)!
-      pos.x = Math.max(40, Math.min(width - 40, pos.x + f.x * DAMP))
-      pos.y = Math.max(40, Math.min(height - 40, pos.y + f.y * DAMP))
+      pos.x = Math.max(80, Math.min(width - 80, pos.x + f.x * DAMP))
+      pos.y = Math.max(80, Math.min(height - 80, pos.y + f.y * DAMP))
     }
   }
 

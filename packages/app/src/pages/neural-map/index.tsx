@@ -8,8 +8,8 @@ import NeuralMapCanvas from "./Canvas"
 import GuidePanel from "./GuidePanel"
 
 const SESSION_ID = "neural-map-global"
-const CANVAS_WIDTH = 900
-const CANVAS_HEIGHT = 600
+const CANVAS_WIDTH = 1400
+const CANVAS_HEIGHT = 800
 
 export default function NeuralMapPage() {
   const server = useServer()

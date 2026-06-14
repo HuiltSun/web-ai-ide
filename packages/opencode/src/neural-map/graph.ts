@@ -29,8 +29,9 @@ export async function buildGraph(srcDir: string, cwd: string): Promise<GraphData
   const files: string[] = []
 
   for await (const f of glob.scan({ cwd: srcDir, absolute: false })) {
-    if (!f.includes("node_modules") && !f.endsWith(".d.ts")) {
-      files.push(f)
+    const normalized = f.replace(/\\/g, "/")
+    if (!normalized.includes("node_modules") && !normalized.endsWith(".d.ts")) {
+      files.push(normalized)
     }
   }
 
