@@ -8,6 +8,7 @@ export interface NavigationLevel {
   label: string                             // display name (last segment)
   graph: GraphData
   positions: Map<string, { x: number; y: number }>
+  layoutSimplified: boolean  // true if collision passes were reduced
 }
 
 export interface GuideState {
@@ -45,8 +46,8 @@ function buildLevel(
     id: n.id,
     radius: nodeRadius(n.activity, n.fileCount),
   }))
-  const positions = computeLayout(nodesWithRadius, graph.edges, width, height)
-  return { path, label, graph, positions }
+  const { positions, simplified } = computeLayout(nodesWithRadius, graph.edges, width, height)
+  return { path, label, graph, positions, layoutSimplified: simplified }
 }
 
 export function createNeuralMapStore() {

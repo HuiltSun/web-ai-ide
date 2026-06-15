@@ -4,6 +4,11 @@ export interface Position {
   y: number
 }
 
+export interface LayoutResult {
+  positions: Map<string, Position>
+  simplified: boolean  // true if collision passes were reduced due to node count
+}
+
 const DEFAULT_RADIUS = 40
 const COLLISION_GAP = 12
 const MAX_COLLISION_PASSES = 80
@@ -20,10 +25,10 @@ export function computeLayout(
   edges: { source: string; target: string }[],
   width: number,
   height: number,
-): Map<string, Position> {
+): LayoutResult {
   const positions = new Map<string, Position>()
   const count = nodes.length
-  if (count === 0) return positions
+  if (count === 0) return { positions, simplified: false }
 
   const cx = width / 2
   const cy = height / 2
@@ -95,7 +100,8 @@ export function computeLayout(
   }
 
   // Post-pass: Gauss-Seidel collision resolution — guarantees gap ≥ COLLISION_GAP
-  for (let pass = 0; pass < MAX_COLLISION_PASSES; pass++) {
+  const collisionPasses = count > 150 ? 10 : MAX_COLLISION_PASSES
+  for (let pass = 0; pass < collisionPasses; pass++) {
     let anyOverlap = false
     for (let i = 0; i < count; i++) {
       const a = positions.get(ids[i])!
@@ -121,5 +127,5 @@ export function computeLayout(
     if (!anyOverlap) break
   }
 
-  return positions
+  return { positions, simplified: count > 150 }
 }

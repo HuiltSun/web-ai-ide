@@ -12,7 +12,7 @@ const edges = [
 ]
 
 test("computeLayout returns a position for every node", () => {
-  const positions = computeLayout(nodes, edges, 800, 600)
+  const { positions } = computeLayout(nodes, edges, 800, 600)
   expect(positions.size).toBe(3)
   for (const id of ["a", "b", "c"]) {
     const pos = positions.get(id)!
@@ -23,7 +23,7 @@ test("computeLayout returns a position for every node", () => {
 })
 
 test("computeLayout keeps nodes within viewport bounds", () => {
-  const positions = computeLayout(nodes, edges, 800, 600)
+  const { positions } = computeLayout(nodes, edges, 800, 600)
   for (const [, pos] of positions) {
     expect(pos.x).toBeGreaterThanOrEqual(40)
     expect(pos.x).toBeLessThanOrEqual(760)
@@ -47,7 +47,7 @@ test("computeLayout avoids node overlap with explicit radii", () => {
   const r = 30
   const gap = 12
   const nodes = Array.from({ length: 8 }, (_, i) => ({ id: `n${i}`, radius: r }))
-  const positions = computeLayout(nodes, [], 800, 600)
+  const { positions } = computeLayout(nodes, [], 800, 600)
   const posArray = [...positions.values()]
   for (let i = 0; i < posArray.length; i++) {
     for (let j = i + 1; j < posArray.length; j++) {
@@ -58,4 +58,16 @@ test("computeLayout avoids node overlap with explicit radii", () => {
       expect(dist).toBeGreaterThanOrEqual(r + r + gap - 1)
     }
   }
+})
+
+test("computeLayout returns simplified=true when node count > 150", () => {
+  const nodes = Array.from({ length: 151 }, (_, i) => ({ id: `n${i}` }))
+  const { simplified } = computeLayout(nodes, [], 1000, 800)
+  expect(simplified).toBe(true)
+})
+
+test("computeLayout returns simplified=false when node count <= 150", () => {
+  const nodes = Array.from({ length: 10 }, (_, i) => ({ id: `n${i}` }))
+  const { simplified } = computeLayout(nodes, [], 1000, 800)
+  expect(simplified).toBe(false)
 })

@@ -39,6 +39,9 @@ export default function NeuralMapPage() {
         fetchProgress(serverUrl(), SESSION_ID),
       ])
       loadGraph(INITIAL_SRC, "root", graph, CANVAS_WIDTH, CANVAS_HEIGHT)
+      if (store.currentLevel()?.layoutSimplified) {
+        showToast("布局已简化（节点数超过 150）")
+      }
       for (const entry of progress) {
         if (entry.understoodAt) markLocal(entry.nodeId)
       }
@@ -57,6 +60,9 @@ export default function NeuralMapPage() {
         return
       }
       store.pushLevel(node.path, node.label, graph, CANVAS_WIDTH, CANVAS_HEIGHT)
+      if (store.currentLevel()?.layoutSimplified) {
+        showToast("布局已简化（节点数超过 150）")
+      }
     } catch {
       showToast("加载子目录失败")
       store.setDrillLoading(false)
