@@ -3,6 +3,17 @@ import { Glob } from "bun"
 import { $ } from "bun"
 import type { GraphData, GraphNode, GraphEdge } from "./types"
 
+export const IGNORED_DIRS = new Set([
+  "node_modules",
+  ".git",
+  "dist",
+  "build",
+  ".turbo",
+  "coverage",
+  ".next",
+  "out",
+])
+
 function extractRelativeImports(content: string, filePath: string, srcDir: string): string[] {
   const results: string[] = []
   const patterns = [
@@ -92,7 +103,7 @@ export async function buildGraph(srcDir: string, cwd: string): Promise<GraphData
   // Filter out root-level file groups (all files sit directly in srcDir with no sub-path)
   // then compute hasChildren for the remaining directory groups
   const nodes: GraphNode[] = [...groups.entries()]
-    .filter(([, files]) => isDirectoryGroup(files))
+    .filter(([id, files]) => isDirectoryGroup(files) && !IGNORED_DIRS.has(id))
     .map(([id, files]) => ({
       id,
       label: id,

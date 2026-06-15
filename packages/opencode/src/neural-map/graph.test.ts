@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test"
-import { buildGraph, computeHasChildren, isDirectoryGroup } from "./graph"
+import { buildGraph, computeHasChildren, isDirectoryGroup, IGNORED_DIRS } from "./graph"
 import path from "path"
 
 test("buildGraph returns nodes for each top-level src directory", async () => {
@@ -64,4 +64,12 @@ test("buildGraph nodes include hasChildren field", async () => {
   for (const node of nodes) {
     expect(typeof node.hasChildren).toBe("boolean")
   }
+})
+
+test("buildGraph excludes node_modules and dist", async () => {
+  expect(IGNORED_DIRS.has("node_modules")).toBe(true)
+  expect(IGNORED_DIRS.has(".git")).toBe(true)
+  expect(IGNORED_DIRS.has("dist")).toBe(true)
+  expect(IGNORED_DIRS.has("src")).toBe(false)
+  expect(IGNORED_DIRS.has("packages")).toBe(false)
 })
