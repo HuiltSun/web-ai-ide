@@ -6,6 +6,7 @@ export interface GraphNode {
     lineCount: number;
     activity: number;
     understood: boolean;
+    hasChildren: boolean;
 }
 export interface GraphEdge {
     source: string;

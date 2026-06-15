@@ -7,6 +7,7 @@ export interface GraphNode {
   lineCount: number
   activity: number  // 0-100, based on git commit frequency
   understood: boolean
+  hasChildren: boolean  // true if this directory contains sub-directories
 }
 
 export interface GraphEdge {
