@@ -24,6 +24,16 @@ function topLevel(relPath: string): string {
   return relPath.split("/")[0]
 }
 
+// Exported for unit testing
+export function computeHasChildren(groupFiles: string[]): boolean {
+  return groupFiles.some(f => f.split("/").length > 2)
+}
+
+// Exported for unit testing
+export function isDirectoryGroup(groupFiles: string[]): boolean {
+  return groupFiles.some(f => f.includes("/"))
+}
+
 export async function buildGraph(srcDir: string, cwd: string): Promise<GraphData> {
   const glob = new Glob("**/*.{ts,tsx,js,jsx}")
   const files: string[] = []
@@ -47,7 +57,6 @@ export async function buildGraph(srcDir: string, cwd: string): Promise<GraphData
   const activityMap = new Map<string, number>()
   const lineMap = new Map<string, number>()
 
-  // Get git activity per top-level directory in one call each
   const activityPromises = [...groups.keys()].map(async (group) => {
     const dirPath = path.join(srcDir, group)
     const result = await $`git log --oneline -- ${dirPath}`.cwd(cwd).quiet().nothrow()
@@ -80,20 +89,32 @@ export async function buildGraph(srcDir: string, cwd: string): Promise<GraphData
     lineMap.set(group, totalLines)
   }
 
-  const nodes: GraphNode[] = [...groups.entries()].map(([id, files]) => ({
-    id,
-    label: id,
-    path: path.join(srcDir, id),
-    fileCount: files.length,
-    lineCount: lineMap.get(id) ?? 0,
-    activity: activityMap.get(id) ?? 0,
-    understood: false,
-  }))
+  // Filter out root-level file groups (all files sit directly in srcDir with no sub-path)
+  // then compute hasChildren for the remaining directory groups
+  const nodes: GraphNode[] = [...groups.entries()]
+    .filter(([, files]) => isDirectoryGroup(files))
+    .map(([id, files]) => ({
+      id,
+      label: id,
+      path: path.join(srcDir, id),
+      fileCount: files.length,
+      lineCount: lineMap.get(id) ?? 0,
+      activity: activityMap.get(id) ?? 0,
+      understood: false,
+      hasChildren: computeHasChildren(files),
+    }))
 
-  const edges: GraphEdge[] = [...edgeSet].map((key) => {
-    const sep = key.indexOf("→")
-    return { source: key.slice(0, sep), target: key.slice(sep + 1) }
-  })
+  const nodeIds = new Set(nodes.map(n => n.id))
+
+  const edges: GraphEdge[] = [...edgeSet]
+    .filter(key => {
+      const sep = key.indexOf("→")
+      return nodeIds.has(key.slice(0, sep)) && nodeIds.has(key.slice(sep + 1))
+    })
+    .map((key) => {
+      const sep = key.indexOf("→")
+      return { source: key.slice(0, sep), target: key.slice(sep + 1) }
+    })
 
   return { nodes, edges }
 }
