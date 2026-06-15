@@ -1,33 +1,22 @@
 import { For, onMount, onCleanup } from "solid-js"
 import type { NeuralMapStore } from "./store"
-
-const NODE_COLORS: Record<string, { fill: string; stroke: string }> = {
-  agent:    { fill: "#0d2040", stroke: "#58a6ff" },
-  auth:     { fill: "#0a2618", stroke: "#3fb950" },
-  provider: { fill: "#2d1d04", stroke: "#d29922" },
-  storage:  { fill: "#1a0a2e", stroke: "#bc8cff" },
-  server:   { fill: "#2d0f0f", stroke: "#f78166" },
-  session:  { fill: "#0d1b2e", stroke: "#79c0ff" },
-  neural:   { fill: "#1a0a2e", stroke: "#bc8cff" },
-  lsp:      { fill: "#0a1a2e", stroke: "#79c0ff" },
-  format:   { fill: "#1a1a0a", stroke: "#d29922" },
-}
+import type { GraphNode } from "./api"
+import { NM_THEME, NODE_COLORS, NODE_DEFAULT_COLOR } from "./theme"
+import { nodeRadius } from "./layout"
 
 function nodeColor(id: string) {
   for (const [key, val] of Object.entries(NODE_COLORS)) {
     if (id.toLowerCase().includes(key)) return val
   }
-  return { fill: "#161b22", stroke: "#8b949e" }
+  return NODE_DEFAULT_COLOR
 }
 
-function nodeRadius(activity: number, fileCount: number): number {
-  const base = 28
-  const actBonus = Math.sqrt(activity) * 1.5
-  const sizeBonus = Math.min(fileCount, 20) * 0.8
-  return Math.round(base + actBonus + sizeBonus)
-}
-
-export default function NeuralMapCanvas(props: { store: NeuralMapStore; width: number; height: number }) {
+export default function NeuralMapCanvas(props: {
+  store: NeuralMapStore
+  width: number
+  height: number
+  onDrillDown: (node: GraphNode) => void
+}) {
   const { state, selectNode } = props.store
   let svgRef!: SVGSVGElement
   let panX = 0
@@ -108,10 +97,10 @@ export default function NeuralMapCanvas(props: { store: NeuralMapStore; width: n
 
       <g class="nm-root">
         {/* Edges */}
-        <For each={state.graph?.edges ?? []}>
+        <For each={props.store.currentLevel()?.graph.edges ?? []}>
           {(edge) => {
-            const a = state.positions.get(edge.source)
-            const b = state.positions.get(edge.target)
+            const a = props.store.currentLevel()?.positions.get(edge.source)
+            const b = props.store.currentLevel()?.positions.get(edge.target)
             if (!a || !b) return null
             const cx = (a.x + b.x) / 2 + (b.y - a.y) * 0.25
             const cy = (a.y + b.y) / 2 - (b.x - a.x) * 0.25
@@ -119,7 +108,7 @@ export default function NeuralMapCanvas(props: { store: NeuralMapStore; width: n
               <path
                 d={`M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}`}
                 fill="none"
-                stroke="#58a6ff"
+                stroke={NM_THEME.accent}
                 stroke-width="1.5"
                 opacity="0.25"
               />
@@ -128,15 +117,15 @@ export default function NeuralMapCanvas(props: { store: NeuralMapStore; width: n
         </For>
 
         {/* Nodes */}
-        <For each={state.graph?.nodes ?? []}>
+        <For each={props.store.currentLevel()?.graph.nodes ?? []}>
           {(node) => {
-            const pos = state.positions.get(node.id)
+            const pos = props.store.currentLevel()?.positions.get(node.id)
             if (!pos) return null
             const isSelected = () => state.selectedNodeId === node.id
             const isUnderstood = () => state.understoodNodeIds.has(node.id)
             const color = nodeColor(node.id)
             const r = nodeRadius(node.activity, node.fileCount)
-            const strokeColor = () => isSelected() ? "#ffffff" : isUnderstood() ? "#3fb950" : color.stroke
+            const strokeColor = () => isSelected() ? "#ffffff" : isUnderstood() ? NM_THEME.understood : color.stroke
             const fillColor = () => isUnderstood() ? "#0a2618" : color.fill
 
             return (
@@ -145,6 +134,9 @@ export default function NeuralMapCanvas(props: { store: NeuralMapStore; width: n
                 transform={`translate(${pos.x},${pos.y})`}
                 style={{ cursor: "pointer" }}
                 onClick={() => selectNode(node.id)}
+                onDblClick={() => {
+                  if (node.hasChildren) props.onDrillDown(node)
+                }}
               >
                 {/* Outer pulse ring */}
                 <circle r={r + 12} fill="none" stroke={strokeColor()} stroke-width="0.8" opacity="0.2" />
@@ -155,7 +147,7 @@ export default function NeuralMapCanvas(props: { store: NeuralMapStore; width: n
                   text-anchor="middle"
                   dominant-baseline="middle"
                   y="-6"
-                  fill={isUnderstood() ? "#3fb950" : "#e6edf3"}
+                  fill={isUnderstood() ? NM_THEME.understood : NM_THEME.textPrimary}
                   font-size="14"
                   font-family="monospace"
                   font-weight="bold"
@@ -176,6 +168,13 @@ export default function NeuralMapCanvas(props: { store: NeuralMapStore; width: n
                 >
                   {node.fileCount}f · {node.lineCount > 999 ? `${Math.round(node.lineCount / 1000)}k` : node.lineCount}L
                 </text>
+                {/* ⊕ drill-down badge */}
+                {node.hasChildren && (
+                  <g transform={`translate(${r - 4},${-(r - 4)})`} pointer-events="none">
+                    <circle r={8} fill={NM_THEME.bg} stroke={NM_THEME.accent} stroke-width="1.5" />
+                    <text text-anchor="middle" dominant-baseline="middle" fill={NM_THEME.accent} font-size="11" font-family="monospace">⊕</text>
+                  </g>
+                )}
               </g>
             )
           }}
