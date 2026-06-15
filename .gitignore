@@ -40,3 +40,10 @@ slides_img/
 slides_preview*.jpg
 汇报稿.md
 汇报稿.pdf
+
+# 工具与本地配置
+.claude/
+.github/
+.husky/
+.opencode/
+.superpowers/
