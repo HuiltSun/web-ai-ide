@@ -92,7 +92,7 @@ export function createNeuralMapStore() {
   }
 
   function setGuideResponse(response: GuideResponse) {
-    setState("guide", { response, loading: false, showFeedback: false })
+    setState("guide", { response, loading: false, showFeedback: false, answer: "" })
   }
 
   function setAnswer(answer: string) {
