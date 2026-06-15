@@ -1,10 +1,22 @@
+// packages/app/src/pages/neural-map/layout.ts
 export interface Position {
   x: number
   y: number
 }
 
+const DEFAULT_RADIUS = 40
+const COLLISION_GAP = 12
+const MAX_COLLISION_PASSES = 80
+
+export function nodeRadius(activity: number, fileCount: number): number {
+  const base = 28
+  const actBonus = Math.sqrt(activity) * 1.5
+  const sizeBonus = Math.min(fileCount, 20) * 0.8
+  return Math.round(base + actBonus + sizeBonus)
+}
+
 export function computeLayout(
-  nodes: { id: string }[],
+  nodes: Array<{ id: string; radius?: number }>,
   edges: { source: string; target: string }[],
   width: number,
   height: number,
@@ -15,7 +27,6 @@ export function computeLayout(
 
   const cx = width / 2
   const cy = height / 2
-  // Seed nodes on a circle sized to fill ~70% of the smaller dimension
   const initR = Math.min(width, height) * 0.35
   for (let i = 0; i < count; i++) {
     const angle = (2 * Math.PI * i) / count
@@ -25,23 +36,22 @@ export function computeLayout(
     })
   }
 
-  const REST = 240      // ideal edge length between connected nodes
-  const KR = 80000      // repulsion strength
-  const KS = 0.015      // spring stiffness (weaker = more spread)
-  const ITERS = 600     // more iterations for convergence
-  const PAD = 110       // keep nodes away from edges
+  const REST = 240
+  const KR = 80000
+  const KS = 0.015
+  const ITERS = 600
+  const PAD = 110
 
   const ids = nodes.map((n) => n.id)
+  const radii = nodes.map(n => n.radius ?? DEFAULT_RADIUS)
 
   for (let iter = 0; iter < ITERS; iter++) {
-    // Cooling: max displacement shrinks from 60→4 as simulation settles
     const temp = 1 - iter / ITERS
     const maxStep = 4 + 56 * temp
 
     const fx = new Float64Array(count)
     const fy = new Float64Array(count)
 
-    // Repulsion between every pair
     for (let i = 0; i < count; i++) {
       const a = positions.get(ids[i])!
       for (let j = i + 1; j < count; j++) {
@@ -59,7 +69,6 @@ export function computeLayout(
       }
     }
 
-    // Spring attraction along edges
     for (const { source, target } of edges) {
       const si = ids.indexOf(source)
       const ti = ids.indexOf(target)
@@ -76,7 +85,6 @@ export function computeLayout(
       fx[ti] -= ffx; fy[ti] -= ffy
     }
 
-    // Apply with per-node step clamping
     for (let i = 0; i < count; i++) {
       const pos = positions.get(ids[i])!
       const mag = Math.sqrt(fx[i] * fx[i] + fy[i] * fy[i])
@@ -84,6 +92,33 @@ export function computeLayout(
       pos.x = Math.max(PAD, Math.min(width - PAD, pos.x + fx[i] * scale))
       pos.y = Math.max(PAD, Math.min(height - PAD, pos.y + fy[i] * scale))
     }
+  }
+
+  // Post-pass: Gauss-Seidel collision resolution — guarantees gap ≥ COLLISION_GAP
+  for (let pass = 0; pass < MAX_COLLISION_PASSES; pass++) {
+    let anyOverlap = false
+    for (let i = 0; i < count; i++) {
+      const a = positions.get(ids[i])!
+      for (let j = i + 1; j < count; j++) {
+        const b = positions.get(ids[j])!
+        const minDist = radii[i] + radii[j] + COLLISION_GAP
+        let dx = b.x - a.x
+        let dy = b.y - a.y
+        if (dx === 0 && dy === 0) { dx = 0.1; dy = 0.1 }
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < minDist) {
+          anyOverlap = true
+          const push = (minDist - dist) / 2 + 0.5
+          const nx = dx / dist
+          const ny = dy / dist
+          a.x = Math.max(PAD, Math.min(width - PAD, a.x - nx * push))
+          a.y = Math.max(PAD, Math.min(height - PAD, a.y - ny * push))
+          b.x = Math.max(PAD, Math.min(width - PAD, b.x + nx * push))
+          b.y = Math.max(PAD, Math.min(height - PAD, b.y + ny * push))
+        }
+      }
+    }
+    if (!anyOverlap) break
   }
 
   return positions

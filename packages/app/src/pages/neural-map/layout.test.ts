@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test"
-import { computeLayout } from "./layout"
+import { computeLayout, nodeRadius } from "./layout"
 
 const nodes = [
   { id: "a" },
@@ -29,5 +29,33 @@ test("computeLayout keeps nodes within viewport bounds", () => {
     expect(pos.x).toBeLessThanOrEqual(760)
     expect(pos.y).toBeGreaterThanOrEqual(40)
     expect(pos.y).toBeLessThanOrEqual(560)
+  }
+})
+
+test("nodeRadius returns base value for zero activity and single file", () => {
+  // base=28, actBonus=sqrt(0)*1.5=0, sizeBonus=min(1,20)*0.8=0.8 → round(28.8)=29
+  expect(nodeRadius(0, 1)).toBe(29)
+})
+
+test("nodeRadius increases with activity and file count", () => {
+  // base=28, actBonus=sqrt(100)*1.5=15, sizeBonus=min(20,20)*0.8=16 → round(59)=59
+  expect(nodeRadius(100, 20)).toBe(59)
+  expect(nodeRadius(100, 20)).toBeGreaterThan(nodeRadius(0, 1))
+})
+
+test("computeLayout avoids node overlap with explicit radii", () => {
+  const r = 30
+  const gap = 12
+  const nodes = Array.from({ length: 8 }, (_, i) => ({ id: `n${i}`, radius: r }))
+  const positions = computeLayout(nodes, [], 800, 600)
+  const posArray = [...positions.values()]
+  for (let i = 0; i < posArray.length; i++) {
+    for (let j = i + 1; j < posArray.length; j++) {
+      const dx = posArray[j].x - posArray[i].x
+      const dy = posArray[j].y - posArray[i].y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      // Allow 1px floating point tolerance
+      expect(dist).toBeGreaterThanOrEqual(r + r + gap - 1)
+    }
   }
 })
