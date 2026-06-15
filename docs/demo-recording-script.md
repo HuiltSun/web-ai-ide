@@ -82,7 +82,6 @@ http://localhost:3000/RTpcd2ViLWFpLWlkZQ==/neural-map
 
 **画面**: 点击一个高亮节点（推荐点击 `agent` 或 `session` 模块）
 
-**要截图的关键画面 📸**:
 - 节点被选中、右侧面板出现的状态
 
 **旁白**:

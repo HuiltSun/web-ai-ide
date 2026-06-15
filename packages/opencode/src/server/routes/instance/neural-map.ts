@@ -26,7 +26,9 @@ export function NeuralMapRoutes() {
     // GET /neural-map/graph?directory=<project-root>&src=<relative-src-path>
     .get("/graph", async (c) => {
       const src = c.req.query("src") ?? "packages/opencode/src"
-      const dir = c.req.query("directory") ?? process.cwd()
+      let dir = c.req.query("directory") ?? process.cwd()
+      // Normalize Windows drive-relative paths: "E:path" → "E:\path"
+      if (/^[A-Za-z]:[^/\\]/.test(dir)) dir = dir[0] + ":\\" + dir.slice(2)
       const srcDir = path.join(dir, src)
       const graph = await buildGraph(srcDir, dir)
       return c.json(graph)

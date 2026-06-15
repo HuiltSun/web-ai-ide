@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "@solidjs/router"
 import { useServer } from "@/context/server"
 import { decode64 } from "@/utils/base64"
 import { createNeuralMapStore } from "./store"
-import { fetchGraph, fetchGuide, fetchProgress, markUnderstood, unmarkUnderstood } from "./api"
+import { fetchGraph, fetchProgress, markUnderstood, unmarkUnderstood } from "./api"
 import type { GraphNode } from "./api"
 import NeuralMapCanvas from "./Canvas"
 import GuidePanel from "./GuidePanel"
@@ -19,7 +19,7 @@ export default function NeuralMapPage() {
   const navigate = useNavigate()
   const params = useParams()
   const store = createNeuralMapStore()
-  const { state, loadGraph, selectNode, setGuideLoading, setGuideResponse, showFeedback, markUnderstood: markLocal, unmarkUnderstood: unmarkLocal, setLoading, setError } = store
+  const { state, loadGraph, selectNode, markUnderstood: markLocal, unmarkUnderstood: unmarkLocal, setLoading, setError } = store
 
   const serverUrl = () => server.current?.http.url ?? ""
   const directory = () => decode64(params.dir)
@@ -69,25 +69,6 @@ export default function NeuralMapPage() {
     }
   }
 
-  async function handleAskGuide(userAnswer?: string) {
-    const node = store.selectedNode()
-    if (!node || !store.currentLevel()) return
-    setGuideLoading(true)
-    try {
-      const response = await fetchGuide(serverUrl(), {
-        node,
-        allNodeIds: store.currentLevel()!.graph.nodes.map((n) => n.id),
-        understoodNodeIds: [...state.understoodNodeIds],
-        userAnswer,
-        sessionId: SESSION_ID,
-      })
-      setGuideResponse(response)
-      if (userAnswer) showFeedback()
-    } catch {
-      setGuideLoading(false)
-    }
-  }
-
   async function handleMarkUnderstood() {
     const nodeId = state.selectedNodeId
     if (!nodeId) return
@@ -101,14 +82,12 @@ export default function NeuralMapPage() {
   }
 
   function handleNavigateNext() {
-    const nextId = state.guide.response?.nextNodeId
-    if (nextId && store.currentLevel()) {
-      const found = store.currentLevel()!.graph.nodes.find((n) => n.id === nextId)
-      if (found) {
-        selectNode(nextId)
-        void handleAskGuide()
-      }
-    }
+    if (!store.currentLevel()) return
+    const currentId = state.selectedNodeId
+    const nodes = store.currentLevel()!.graph.nodes
+    const idx = currentId ? nodes.findIndex((n) => n.id === currentId) : -1
+    const next = nodes[(idx + 1) % nodes.length]
+    if (next) selectNode(next.id)
   }
 
   const total = () => store.currentLevel()?.graph.nodes.length ?? 0
@@ -228,7 +207,8 @@ export default function NeuralMapPage() {
           </div>
           <GuidePanel
             store={store}
-            onAskGuide={handleAskGuide}
+            serverUrl={serverUrl()}
+            directory={directory()}
             onMarkUnderstood={handleMarkUnderstood}
             onNavigateNext={handleNavigateNext}
           />
