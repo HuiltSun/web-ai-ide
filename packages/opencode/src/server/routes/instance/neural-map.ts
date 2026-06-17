@@ -4,12 +4,28 @@ import { Effect } from "effect"
 import { z } from "zod"
 import { Provider } from "@/provider/provider"
 import { Database } from "@/storage/db"
-import { NeuralMapProgressTable } from "@/neural-map/neural-map.sql"
+import { NeuralMapProgressTable, NeuralMapSnapshotTable } from "@/neural-map/neural-map.sql"
 import { buildGraph } from "@/neural-map/graph"
 import { generateGuide } from "@/neural-map/guide"
 import { runRequest } from "./trace"
 import path from "path"
 import { eq, and } from "drizzle-orm"
+
+const snapshotBodySchema = z.object({
+  directory: z.string(),
+  src: z.string(),
+  nodes: z.array(z.object({
+    id: z.string(),
+    label: z.string(),
+    path: z.string(),
+    fileCount: z.number(),
+    lineCount: z.number(),
+    activity: z.number(),
+    understood: z.boolean(),
+    hasChildren: z.boolean(),
+  })),
+  edges: z.array(z.object({ source: z.string(), target: z.string() })),
+})
 
 const nodeSchema = z.object({
   id: z.string(),
@@ -131,5 +147,93 @@ export function NeuralMapRoutes() {
           .run(),
       )
       return c.json({ ok: true })
+    })
+
+    // POST /neural-map/snapshot — save rendered graph (nodes + edges, no positions)
+    .post(
+      "/snapshot",
+      zValidator("json", snapshotBodySchema),
+      (c) => {
+        const { directory, src, nodes, edges } = c.req.valid("json")
+        const snapshotJson = JSON.stringify({ nodes, edges })
+        Database.use((db) =>
+          db
+            .insert(NeuralMapSnapshotTable)
+            .values({ directory, src, snapshot_json: snapshotJson, saved_at: Date.now() })
+            .onConflictDoUpdate({
+              target: [NeuralMapSnapshotTable.directory, NeuralMapSnapshotTable.src],
+              set: { snapshot_json: snapshotJson, saved_at: Date.now() },
+            })
+            .run(),
+        )
+        return c.json({ ok: true })
+      },
+    )
+
+    // GET /neural-map/snapshot?directory=&src= — load saved graph
+    .get("/snapshot", (c) => {
+      const directory = c.req.query("directory") ?? ""
+      const src = c.req.query("src") ?? ""
+      const row = Database.use((db) =>
+        db
+          .select()
+          .from(NeuralMapSnapshotTable)
+          .where(
+            and(
+              eq(NeuralMapSnapshotTable.directory, directory),
+              eq(NeuralMapSnapshotTable.src, src),
+            ),
+          )
+          .get(),
+      )
+      if (!row) return c.json(null)
+      return c.json({ ...(JSON.parse(row.snapshot_json) as { nodes: unknown; edges: unknown }), savedAt: row.saved_at })
+    })
+
+    // GET /neural-map/context?directory=&src= — markdown summary for agent use
+    .get("/context", (c) => {
+      const directory = c.req.query("directory") ?? ""
+      const src = c.req.query("src") ?? ""
+      const row = Database.use((db) =>
+        db
+          .select()
+          .from(NeuralMapSnapshotTable)
+          .where(
+            and(
+              eq(NeuralMapSnapshotTable.directory, directory),
+              eq(NeuralMapSnapshotTable.src, src),
+            ),
+          )
+          .get(),
+      )
+      if (!row) {
+        return c.text("No snapshot found. Load the Neural Map view first to generate one.", 404)
+      }
+      const { nodes, edges } = JSON.parse(row.snapshot_json) as {
+        nodes: Array<{ id: string; path: string; fileCount: number; lineCount: number; activity: number; hasChildren: boolean }>
+        edges: Array<{ source: string; target: string }>
+      }
+      const edgeMap = new Map<string, string[]>()
+      for (const e of edges) {
+        if (!edgeMap.has(e.source)) edgeMap.set(e.source, [])
+        edgeMap.get(e.source)!.push(e.target)
+      }
+      const lines: string[] = [
+        `# Codebase Neural Map — ${src}`,
+        `> Generated: ${new Date(row.saved_at).toISOString()}`,
+        "",
+        "## Modules",
+        "",
+      ]
+      for (const n of nodes) {
+        lines.push(`### \`${n.id}\``)
+        lines.push(`- **Path**: ${n.path}`)
+        lines.push(`- **Files**: ${n.fileCount}  **Lines**: ${n.lineCount}  **Activity**: ${n.activity}/100`)
+        if (n.hasChildren) lines.push(`- Has sub-modules (drillable)`)
+        const deps = edgeMap.get(n.id)
+        if (deps && deps.length > 0) lines.push(`- **Imports**: ${deps.join(", ")}`)
+        lines.push("")
+      }
+      return c.text(lines.join("\n"))
     })
 }

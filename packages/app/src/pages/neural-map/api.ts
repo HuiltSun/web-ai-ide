@@ -2,9 +2,8 @@ import type { GraphData, GraphNode, GuideResponse, ProgressEntry } from "../../.
 
 export type { GraphData, GraphNode, GuideResponse, ProgressEntry }
 
-export interface PositionedNode extends GraphNode {
-  x: number
-  y: number
+export interface GraphSnapshot extends GraphData {
+  savedAt: number
 }
 
 async function apiFetch(serverUrl: string, path: string, init?: RequestInit) {
@@ -66,4 +65,25 @@ export async function unmarkUnderstood(
   await apiFetch(serverUrl, `/neural-map/progress/${sessionId}/${nodeId}`, {
     method: "DELETE",
   })
+}
+
+export async function saveSnapshot(
+  serverUrl: string,
+  directory: string,
+  src: string,
+  graph: GraphData,
+): Promise<void> {
+  await apiFetch(serverUrl, "/neural-map/snapshot", {
+    method: "POST",
+    body: JSON.stringify({ directory, src, nodes: graph.nodes, edges: graph.edges }),
+  })
+}
+
+export async function loadSnapshot(
+  serverUrl: string,
+  directory: string,
+  src: string,
+): Promise<GraphSnapshot | null> {
+  const params = new URLSearchParams({ directory, src })
+  return apiFetch(serverUrl, `/neural-map/snapshot?${params}`)
 }

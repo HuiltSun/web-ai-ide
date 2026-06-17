@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "@solidjs/router"
 import { useServer } from "@/context/server"
 import { decode64 } from "@/utils/base64"
 import { createNeuralMapStore } from "./store"
-import { fetchGraph, fetchProgress, markUnderstood, unmarkUnderstood } from "./api"
+import { fetchGraph, fetchProgress, markUnderstood, unmarkUnderstood, saveSnapshot, loadSnapshot } from "./api"
 import type { GraphNode } from "./api"
 import NeuralMapCanvas from "./Canvas"
 import GuidePanel from "./GuidePanel"
@@ -13,6 +13,7 @@ const SESSION_ID = "neural-map-global"
 const CANVAS_WIDTH = 1400
 const CANVAS_HEIGHT = 800
 const INITIAL_SRC = "packages/opencode/src"
+const SNAPSHOT_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 export default function NeuralMapPage() {
   const server = useServer()
@@ -34,14 +35,26 @@ export default function NeuralMapPage() {
   onMount(async () => {
     setLoading(true)
     try {
-      const [graph, progress] = await Promise.all([
-        fetchGraph(serverUrl(), directory(), INITIAL_SRC),
+      const [snapshot, progress] = await Promise.all([
+        loadSnapshot(serverUrl(), directory(), INITIAL_SRC),
         fetchProgress(serverUrl(), SESSION_ID),
       ])
-      loadGraph(INITIAL_SRC, "root", graph, CANVAS_WIDTH, CANVAS_HEIGHT)
-      if (store.currentLevel()?.layoutSimplified) {
-        showToast("布局已简化（节点数超过 150）")
+
+      const snapshotFresh = snapshot && (Date.now() - snapshot.savedAt < SNAPSHOT_TTL_MS)
+      if (snapshotFresh) {
+        loadGraph(INITIAL_SRC, "root", snapshot!, CANVAS_WIDTH, CANVAS_HEIGHT)
+        if (store.currentLevel()?.layoutSimplified) {
+          showToast("布局已简化（节点数超过 150）")
+        }
+      } else {
+        const graph = await fetchGraph(serverUrl(), directory(), INITIAL_SRC)
+        loadGraph(INITIAL_SRC, "root", graph, CANVAS_WIDTH, CANVAS_HEIGHT)
+        if (store.currentLevel()?.layoutSimplified) {
+          showToast("布局已简化（节点数超过 150）")
+        }
+        saveSnapshot(serverUrl(), directory(), INITIAL_SRC, graph).catch(() => {})
       }
+
       for (const entry of progress) {
         if (entry.understoodAt) markLocal(entry.nodeId)
       }
@@ -53,7 +66,9 @@ export default function NeuralMapPage() {
   async function handleDrillDown(node: GraphNode) {
     store.setDrillLoading(true)
     try {
-      const graph = await fetchGraph(serverUrl(), directory(), node.path)
+      const snapshot = await loadSnapshot(serverUrl(), directory(), node.path)
+      const snapshotFresh = snapshot && (Date.now() - snapshot.savedAt < SNAPSHOT_TTL_MS)
+      const graph = snapshotFresh ? snapshot! : await fetchGraph(serverUrl(), directory(), node.path)
       if (graph.nodes.length === 0) {
         showToast("此目录无可展示的子模块")
         store.setDrillLoading(false)
@@ -62,6 +77,9 @@ export default function NeuralMapPage() {
       store.pushLevel(node.path, node.label, graph, CANVAS_WIDTH, CANVAS_HEIGHT)
       if (store.currentLevel()?.layoutSimplified) {
         showToast("布局已简化（节点数超过 150）")
+      }
+      if (!snapshotFresh) {
+        saveSnapshot(serverUrl(), directory(), node.path, graph).catch(() => {})
       }
     } catch {
       showToast("加载子目录失败")
