@@ -594,3 +594,177 @@ TTL 常量：`const SNAPSHOT_TTL_MS = 24 * 60 * 60 * 1000`
 ```
 
 每个模块包含：路径、文件数、行数、Git 活跃度、是否可钻取、直接依赖列表。若快照尚未生成或已过期，接口返回 404 并提示先打开 Neural Map 视图触发重建。
+
+---
+
+## 全局搜索面板（Global Search Panel）
+
+### 功能概述
+
+全局搜索面板是一个键盘优先的全文代码搜索界面，通过 `Ctrl+Shift+F` 唤起，在整个项目中实时搜索文本并展示匹配结果。**所有搜索结果可一键格式化为 Markdown，直接作为 Agent 上下文注入 AI 会话。**
+
+核心解决的问题：AI Agent 无法感知"某个符号在哪些文件中被引用"——全局搜索结果提供了精确的代码定位数据，配合格式化输出可消除 Agent 在代码定位上的盲区。
+
+---
+
+### 架构与组件
+
+```
+packages/
+├── opencode/src/server/routes/instance/file.ts   # 后端搜索路由
+└── app/src/
+    ├── components/global-search-panel.tsx         # 搜索面板 UI 组件
+    └── pages/layout.tsx                           # 全局布局，注册快捷键与命令
+```
+
+**数据流：**
+
+```
+用户输入（防抖 300ms）
+  → GET /file/find?pattern=&limit=50          # ripgrep 全文搜索
+  → SearchMatch[]                             # 按文件分组渲染
+  → "复制为 Markdown" 按钮
+  → GET /file/search/context?pattern=&limit=100  # 同一搜索的 Markdown 格式
+  → navigator.clipboard.writeText(markdown)  # 写入剪贴板
+```
+
+---
+
+### 后端 API
+
+#### `GET /file/find`
+
+使用 ripgrep 搜索项目中所有文件的文本内容，返回 JSON 数组。
+
+**查询参数：**
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `pattern` | `string` | 搜索正则表达式或关键词 |
+| `limit` | `number?` | 最大返回条数（默认 50，最大 200） |
+
+**响应格式（`SearchMatch[]`）：**
+
+```typescript
+interface SearchMatch {
+  path: { text: string }          // 文件路径
+  lines: { text: string }         // 匹配的整行内容
+  line_number: number             // 行号（1-based）
+  submatches: Array<{
+    match: { text: string }
+    start: number
+    end: number
+  }>
+}
+```
+
+**实现来源：** `Ripgrep.Service.search()` —— `packages/opencode/src/file/ripgrep.ts`
+
+#### `GET /file/search/context`
+
+与 `/file/find` 使用相同的 ripgrep 搜索，但返回 Markdown 纯文本，专为 AI Agent 上下文设计。
+
+**响应格式（`text/plain` Markdown）：**
+
+```markdown
+# Search Results: "useServer"
+> 12 matches across 5 files
+
+## packages/app/src/components/global-search-panel.tsx
+- Line 46: `  const server = useServer()`
+
+## packages/app/src/pages/neural-map/index.tsx
+- Line 15: `  const server = useServer()`
+```
+
+**实现细节：**
+
+此路由使用 `runRequest()`（非 `jsonRequest()`），因为 Hono 的 `jsonRequest` 辅助函数会强制将响应包装为 JSON，无法返回纯文本。
+
+```typescript
+const result = await runRequest("FileRoutes.searchContext", c, Effect.gen(function* () {
+  const svc = yield* Ripgrep.Service
+  return yield* svc.search({ cwd: Instance.directory, pattern, limit: limit ?? 100 })
+}))
+return c.text(lines.join("\n"))
+```
+
+---
+
+### 前端组件（`global-search-panel.tsx`）
+
+**组件接口：**
+
+```typescript
+function GlobalSearchPanel(props: { open: boolean; onClose: () => void }): JSX.Element
+```
+
+**核心状态：**
+
+```typescript
+const [query, setQuery] = createSignal("")
+const [results, setResults] = createSignal<GroupedResult[]>([])
+const [totalMatches, setTotalMatches] = createSignal(0)
+const [loading, setLoading] = createSignal(false)
+const [copied, setCopied] = createSignal(false)
+```
+
+**交互设计：**
+
+- 防抖输入：300ms 延迟后发起请求，避免每次按键都触发网络请求
+- `Escape` 键关闭（通过 `onMount` / `onCleanup` 绑定到 `document` 上）
+- 点击遮罩（backdrop）关闭
+- 搜索结果按文件分组，文件名作为 sticky header
+- 每个匹配行显示行号 + 完整行内容
+
+**Agent 上下文复制：**
+
+```typescript
+async function copyAsContext() {
+  const md = await fetchContext(serverUrl(), query().trim())
+  await navigator.clipboard.writeText(md)
+  setCopied(true)
+  setTimeout(() => setCopied(false), 2000)
+}
+```
+
+按钮仅在有搜索结果时显示，复制后 2 秒内显示"✓ 已复制"反馈。
+
+---
+
+### 快捷键注册
+
+在 `packages/app/src/pages/layout.tsx` 中通过命令系统注册：
+
+```typescript
+const [searchOpen, setSearchOpen] = createSignal(false)
+
+command.register("layout", {
+  // ...其他命令
+  {
+    id: "global.search",
+    title: "全局搜索",
+    category: "...",
+    keybind: "ctrl+shift+f",
+    onSelect: () => setSearchOpen(true),
+  }
+})
+```
+
+同时在命令面板（`Ctrl+K`）中可搜索"全局搜索"来触发。
+
+---
+
+### 样式约定
+
+全部使用 CSS 变量而非硬编码颜色，与应用主题（亮色/暗色模式）自动适配：
+
+| 变量 | 用途 |
+|------|------|
+| `--background-base` | 面板背景 |
+| `--background-stronger` | 文件头、状态栏背景 |
+| `--border-base` | 边框、分隔线 |
+| `--text-base` | 主要文字 |
+| `--text-weaker` | 行号、辅助文字 |
+| `--text-link` | 文件路径颜色 |
+| `--font-family-mono` | 等宽字体（代码内容） |

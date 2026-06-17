@@ -63,6 +63,7 @@ import { useCommand, type CommandOption } from "@/context/command"
 import { ConstrainDragXAxis, getDraggableId } from "@/utils/solid-dnd"
 import { DebugBar } from "@/components/debug-bar"
 import { Titlebar } from "@/components/titlebar"
+import { GlobalSearchPanel } from "@/components/global-search-panel"
 import { useServer } from "@/context/server"
 import { useLanguage, type Locale } from "@/context/language"
 import {
@@ -127,6 +128,7 @@ export default function Layout(props: ParentProps) {
   const command = useCommand()
   const theme = useTheme()
   const language = useLanguage()
+  const [searchOpen, setSearchOpen] = createSignal(false)
   const initialDirectory = decode64(params.dir)
   const location = useLocation()
   const route = createMemo(() => {
@@ -1141,6 +1143,13 @@ export default function Layout(props: ParentProps) {
         category: language.t("command.category.theme"),
         keybind: "mod+shift+t",
         onSelect: () => cycleTheme(1),
+      },
+      {
+        id: "global.search",
+        title: "全局搜索",
+        category: language.t("command.category.view"),
+        keybind: "ctrl+shift+f",
+        onSelect: () => setSearchOpen(true),
       },
     ]
 
@@ -2506,6 +2515,7 @@ export default function Layout(props: ParentProps) {
         {import.meta.env.DEV && <DebugBar />}
       </div>
       <Toast.Region />
+      <GlobalSearchPanel open={searchOpen()} onClose={() => setSearchOpen(false)} />
     </div>
   )
 }

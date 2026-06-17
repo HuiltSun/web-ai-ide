@@ -35,6 +35,7 @@ const nodeSchema = z.object({
   lineCount: z.number(),
   activity: z.number(),
   understood: z.boolean(),
+  hasChildren: z.boolean().optional().default(false),
 })
 
 export function NeuralMapRoutes() {
