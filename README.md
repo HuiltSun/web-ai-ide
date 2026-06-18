@@ -10,7 +10,7 @@
   <strong>Web AI IDE</strong><br>
   终端优先的多客户端 AI Coding Agent
 </p>
-
+![alt text](image.png)
 <p align="center">
   <a href="https://github.com/HuiltSun/web-ai-ide"><img alt="GitHub" src="https://img.shields.io/badge/github-HuiltSun%2Fweb--ai--ide-6B8E7D?style=flat-square&logo=github" /></a>
   <a href="https://github.com/HuiltSun/web-ai-ide/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-6B8E7D?style=flat-square" /></a>

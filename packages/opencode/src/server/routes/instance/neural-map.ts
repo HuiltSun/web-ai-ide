@@ -58,33 +58,31 @@ export function NeuralMapRoutes() {
         "json",
         z.object({
           node: nodeSchema,
-          allNodeIds: z.array(z.string()),
-          understoodNodeIds: z.array(z.string()),
-          userAnswer: z.string().optional(),
-          sessionId: z.string(),
         }),
       ),
       async (c) => {
         const body = c.req.valid("json")
-        const response = await runRequest(
-          "NeuralMap.guide",
-          c,
-          Effect.gen(function* () {
-            const provider = yield* Provider.Service
-            const modelRef = yield* provider.defaultModel()
-            const model = yield* provider.getModel(modelRef.providerID, modelRef.modelID)
-            const language = yield* provider.getLanguage(model)
-            return yield* Effect.promise(() =>
-              generateGuide(language as any, {
-                node: body.node,
-                allNodeIds: body.allNodeIds,
-                understoodNodeIds: body.understoodNodeIds,
-                userAnswer: body.userAnswer,
-              }),
-            )
-          }),
-        )
-        return c.json(response)
+        try {
+          const response = await runRequest(
+            "NeuralMap.guide",
+            c,
+            Effect.gen(function* () {
+              const provider = yield* Provider.Service
+              const modelRef = yield* provider.defaultModel()
+              const model = yield* provider.getModel(modelRef.providerID, modelRef.modelID)
+              const language = yield* provider.getLanguage(model)
+              return yield* Effect.tryPromise({
+                try: () => generateGuide(language as any, { node: body.node }),
+                catch: (e) => new Error(e instanceof Error ? e.message : String(e)),
+              })
+            }),
+          )
+          return c.json(response)
+        } catch (err) {
+          console.error("[neural-map/guide] handler error:", err)
+          const message = err instanceof Error ? err.message : String(err)
+          return c.json({ error: message }, { status: 500 })
+        }
       },
     )
 

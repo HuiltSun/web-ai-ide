@@ -311,6 +311,17 @@ export function Titlebar() {
         onMouseDown={drag}
       >
         <div id="opencode-titlebar-right" class="flex items-center gap-1 shrink-0 justify-end" />
+        <Show when={params.dir}>
+          <Tooltip placement="bottom" value="神经图" openDelay={800}>
+            <Button
+              variant="ghost"
+              icon="brain"
+              class="titlebar-icon w-8 h-6 p-0 box-border"
+              onClick={() => navigate(`/${params.dir}/neural-map`)}
+              aria-label="神经图"
+            />
+          </Tooltip>
+        </Show>
         <Show when={windows()}>
           {!tauriApi() && <div class="w-36 shrink-0" />}
           <div data-tauri-decorum-tb class="flex flex-row" />

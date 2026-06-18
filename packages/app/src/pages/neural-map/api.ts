@@ -11,7 +11,14 @@ async function apiFetch(serverUrl: string, path: string, init?: RequestInit) {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   })
-  if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`)
+  if (!res.ok) {
+    let detail = ""
+    try {
+      const body = await res.json() as { error?: string; message?: string }
+      detail = body.error ?? body.message ?? ""
+    } catch {}
+    throw new Error(detail || `API ${path} failed: ${res.status}`)
+  }
   return res.json()
 }
 
@@ -27,17 +34,13 @@ export async function fetchGraph(
 
 export async function fetchGuide(
   serverUrl: string,
-  payload: {
-    node: GraphNode
-    allNodeIds: string[]
-    understoodNodeIds: string[]
-    userAnswer?: string
-    sessionId: string
-  },
+  directory: string,
+  node: GraphNode,
 ): Promise<GuideResponse> {
-  return apiFetch(serverUrl, "/neural-map/guide", {
+  const params = new URLSearchParams({ directory })
+  return apiFetch(serverUrl, `/neural-map/guide?${params}`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ node }),
   })
 }
 
