@@ -1480,6 +1480,15 @@ export default function Layout(props: ParentProps) {
         multiple: true,
       })
       resolve(result)
+    } else if (server.isLocal()) {
+      const run = ++dialogRun
+      void import("@/components/dialog-browse-directory").then((x) => {
+        if (dialogDead || dialogRun !== run) return
+        dialog.show(
+          () => <x.DialogBrowseDirectory onSelect={resolve} />,
+          () => resolve(null),
+        )
+      })
     } else {
       const run = ++dialogRun
       void import("@/components/dialog-select-directory").then((x) => {

@@ -325,6 +325,9 @@ export const dict = {
 
   "dialog.directory.search.placeholder": "搜索文件夹",
   "dialog.directory.empty": "未找到文件夹",
+  "dialog.browse.back": "返回上级",
+  "dialog.browse.select": "选择此文件夹",
+  "dialog.browse.thisPc": "此电脑",
 
   "dialog.server.title": "服务器",
   "dialog.server.description": "切换此应用连接的 OpenCode 服务器。",

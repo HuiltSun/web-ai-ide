@@ -310,6 +310,9 @@ export const dict = {
 
   "dialog.directory.search.placeholder": "Search folders",
   "dialog.directory.empty": "No folders found",
+  "dialog.browse.back": "Go back",
+  "dialog.browse.select": "Select this folder",
+  "dialog.browse.thisPc": "This PC",
 
   "app.server.unreachable": "Could not reach {{server}}",
   "app.server.retrying": "Retrying automatically...",

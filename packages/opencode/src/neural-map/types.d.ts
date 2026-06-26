@@ -18,9 +18,6 @@ export interface GraphData {
 }
 export interface GuideResponse {
     intro: string;
-    quiz: string;
-    feedback?: string;
-    nextNodeId?: string;
 }
 export interface ProgressEntry {
     nodeId: string;
