@@ -56,8 +56,9 @@ export const DialogBrowseDirectory = (props: {
         DRIVE_LETTERS.map(async (letter) => {
           const drive = letter + ":\\"
           try {
-            await sdk.client.file.list({ directory: drive, path: "" })
-            return drive
+            const res = await sdk.client.file.list({ directory: drive, path: "" })
+            // Drive exists only if it returns at least one entry
+            return (res.data && res.data.length > 0) ? drive : null
           } catch {
             return null
           }

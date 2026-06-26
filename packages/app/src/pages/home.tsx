@@ -9,7 +9,6 @@ import { usePlatform } from "@/context/platform"
 import { DateTime } from "luxon"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { DialogSelectDirectory } from "@/components/dialog-select-directory"
-import { DialogBrowseDirectory } from "@/components/dialog-browse-directory"
 import { DialogSelectServer } from "@/components/dialog-select-server"
 import { useServer } from "@/context/server"
 import { useGlobalSync } from "@/context/global-sync"
@@ -62,10 +61,12 @@ export default function Home() {
       })
       resolve(result)
     } else if (server.isLocal()) {
-      dialog.show(
-        () => <DialogBrowseDirectory onSelect={resolve} />,
-        () => resolve(null),
-      )
+      void import("@/components/dialog-browse-directory").then((x) => {
+        dialog.show(
+          () => <x.DialogBrowseDirectory onSelect={resolve} />,
+          () => resolve(null),
+        )
+      })
     } else {
       dialog.show(
         () => <DialogSelectDirectory multiple={true} onSelect={resolve} />,
